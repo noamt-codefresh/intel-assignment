@@ -1,0 +1,22 @@
+{
+  "name": "todo-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "q": "^1.5.1",
+    "redis": "^2.8.0",
+    "restify": "^8.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.17",
+    "@types/q": "^1.5.2",
+    "@types/redis": "^2.8.14"
+  }
+}
