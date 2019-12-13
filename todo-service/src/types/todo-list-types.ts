@@ -10,3 +10,7 @@ export interface TodoListItem {
     name: string;
     done: boolean;
 }
+
+export interface TodoListDal {
+    getTodoLists(userId: string): Promise<>
+}

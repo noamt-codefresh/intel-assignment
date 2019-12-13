@@ -17,7 +17,7 @@ const todoListCacheManager: CacheManager = new TodoListCacheManager(redisClient)
 
 const todoListMongoDal: TodoListDal = new TodoListMongoDal(mongodbUrl, todoListCacheManager);
 
-const todoLodic = TodoListLogic(mongoTodoListDal);
+const todoListLogic = TodoListLogic(mongoTodoListDal);
 const todoRestService = new TodoListRestService(server, todoLodic);
 
 // TODO: catch sigint/sigterm to end gracefully mongo/redis connections
