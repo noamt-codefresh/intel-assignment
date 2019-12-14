@@ -3,27 +3,34 @@ import {TodoListRestService} from "./todo-list/todo-rest-service";
 import Q = require("q");
 import redis = require("redis");
 import {RedisClient} from "redis";
+import {TodoListDal} from "./types/todo-list-types";
+import {MongoClient} from "mongodb";
+import {TodoListMongoDal} from "./todo-list/todo-list-mongo-dal";
+import {TodoListLogic} from "./todo-list/todo-list-logic";
+import {TodoListCacheManger} from "./todo-list/todo-list-cache-manger";
 
 
 const mongodbUrl = process.env.MONGODB_URL || "mongodb://127.0.0.1:27017";
 const redisUrl = process.env.REDIS_URL || "redis://127.0.0.1:6379";
 
-const server = Restify.createServer();
-server.use(Restify.plugins.bodyParser());
-server.use(Restify.plugins.queryParser());
+const restServer = Restify.createServer();
+restServer.use(Restify.plugins.bodyParser());
+restServer.use(Restify.plugins.queryParser());
+
 
 const redisClient: RedisClient = redis.createClient({url: redisUrl});
-const todoListCacheManager: CacheManager = new TodoListCacheManager(redisClient);
+const todoListCacheManager: TodoListCacheManger = new TodoListCacheManger(redisClient);
 
-const todoListMongoDal: TodoListDal = new TodoListMongoDal(mongodbUrl, todoListCacheManager);
+const todoListMongoDal: TodoListDal = new TodoListMongoDal(todoListCacheManager);
 
-const todoListLogic = TodoListLogic(mongoTodoListDal);
-const todoRestService = new TodoListRestService(server, todoLodic);
+const todoListLogic = new TodoListLogic(todoListMongoDal);
+const todoRestService = new TodoListRestService(restServer, todoListLogic);
 
 // TODO: catch sigint/sigterm to end gracefully mongo/redis connections
 
-Q.when().then(() => {
-    return Q.all([mongoDbPhoneDal.connect(mongodbUrl), phoneRestService.start(phoneStoragePort)]);
+Q.when().then(async () => {
+    const mongoClient = await Q.nfcall(MongoClient.connect.bind(MongoClient), mongodbUrl);
+    return Q.all([todoListMongoDal.init(mongoClient), phoneRestService.start(phoneStoragePort)]);
 }).then(() => {
     console.log("main: service is ready");
 }).catch(err => {
