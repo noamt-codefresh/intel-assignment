@@ -1,33 +1,32 @@
-import Restify from "restify";
-import {Next, Request, Response} from "restify";
+
+import {Next, Request, Response, Server} from "restify";
 import {TodoListLogic} from "./todo-list-logic";
-import {TodoList} from "../types/todo-list-types";
+import {RestServer, TodoList} from "../types/todo-list-types";
 
 
-export class TodoListRestService {
+export class TodoListRestService implements RestServer {
 
-    private _server: Restify.Server;
+    constructor(private _todoListLogic: TodoListLogic) {}
 
-    constructor(private _todoListLogic: TodoListLogic) {
-
-        this._server.get(":userId/todo/lists", this._getTodoLists.bind(this));
-        this._server.post(":userId/todo/list", this._addTodoList.bind(this));
-        this._server.patch(":userId/todo/:listId/item", this._updateTodoList.bind(this));
-        this._server.post(":userId/todo/:listId/item", this._updateTodoList.bind(this));
-        this._server.del(":userId/todo/:listId/item", this._deleteTodoList.bind(this));
-
+    public registerRoutes(restServer: Server): void {
+        restServer.get("/:userId/todo/lists", this._getTodoLists.bind(this));
+        restServer.post("/:userId/todo/list", this._addTodoList.bind(this));
+        restServer.patch("/:userId/todo/:listId/item", this._updateTodoList.bind(this));
+        restServer.post("/:userId/todo/:listId/item", this._updateTodoList.bind(this));
+        restServer.del("/:userId/todo/:listId/item", this._deleteTodoList.bind(this));
     }
 
     private async _getTodoLists(req: Request, res: Response, next: Next): Promise<TodoList[]> {
-            try {
+        /*    try {
                const todoLists = await this._todoListLogic.()
             } catch (err) {
 
             }
-            return this;
+            return this;*/
+        return null;
     }
 
-    private async _addTodoList(req: Request, res: Restify.Response, next: Next): Promise<void> {
+    private async _addTodoList(req: Request, res: Response, next: Next): Promise<void> {
         res.send(201)
     }
 

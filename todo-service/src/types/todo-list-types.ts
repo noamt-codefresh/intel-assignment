@@ -1,15 +1,24 @@
 import {ObjectId} from "mongodb";
 import {MongoClient} from "mongodb";
+import {Server} from "restify";
 
 export const TODO_LIST_DB_NAME: string = "todo";
 
-export interface MongoDbCollection {
+export interface RestServer {
+    registerRoutes(restServer: Server): void
+}
+
+export interface MongoDbCollectionInit {
     init(mongoClient: MongoClient): Promise<void>;
 }
 
-export interface TodoListDal extends MongoDbCollection {
+export interface TodoListDal extends MongoDbCollectionInit {
     getTodoLists(userId: string): Promise<TodoList[]>;
+}
 
+export interface UsersDal extends MongoDbCollectionInit {
+   addUser(user: UserInput): Promise<User>;
+   getUser(user: UserInput): Promise<User>;
 }
 
 export interface MongoDocument {
@@ -36,4 +45,14 @@ export interface TodoListItem extends MongoDocument {
 export interface TodoListItemInput {
     name: TodoListItem['name'];
     done: TodoListItem['done'];
+}
+
+export interface User extends MongoDocument{
+    name: string;
+    password: string;
+}
+
+export interface UserInput {
+    name: User['name'];
+    password: User['password'];
 }
