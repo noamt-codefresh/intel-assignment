@@ -10,11 +10,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "mongodb": "^3.4.0",
     "q": "^1.5.1",
     "redis": "^2.8.0",
     "restify": "^8.5.0"
   },
   "devDependencies": {
+    "@types/mongodb": "^3.3.12",
     "@types/node": "^12.12.17",
     "@types/q": "^1.5.2",
     "@types/redis": "^2.8.14"

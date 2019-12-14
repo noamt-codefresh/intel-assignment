@@ -1,6 +1,8 @@
 
 
 export interface TodoList {
+
+    _id: ObjectId;
     title: string;
     items: TodoListItem[];
     userId: string;
