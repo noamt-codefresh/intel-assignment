@@ -1,14 +1,16 @@
 import Restify = require("restify");
 import {TodoListRestService} from "./todo-list/todo-list-rest-service";
 import Q = require("q");
-
-import {TodoListDal} from "./types/todo-list-types";
+import {TodoListDal, UsersDal} from "./types/todo-list-types";
 import {MongoClient} from "mongodb";
 import {TodoListMongoDal} from "./todo-list/todo-list-mongo-dal";
 import {TodoListLogic} from "./todo-list/todo-list-logic";
-import {TodoListCacheManger} from "./todo-list/todo-list-cache-manger";
+import {TodoListCacheManager} from "./todo-list/todo-list-cache-manager";
 import {TODO_LIST_DB_NAME} from "../dist/types/todo-list-types";
 import {RedisFacade} from "./utils/redis-facade";
+import {UsersMongoDal} from "./users-management/users-mongo-dal";
+import {UsersLogic} from "./users-management/users-logic";
+import {UsersRestService} from "./users-management/users-rest-service";
 
 const restServerPort = process.env.TODO_SERVICE_PORT || "8686";
 const mongodbUrl = process.env.MONGODB_URL || `mongodb://127.0.0.1:27017/${TODO_LIST_DB_NAME}`;
@@ -28,13 +30,17 @@ Q.when().then( () => {
     ]);
 }).spread((mongoClient, redisClient) => {
 
-    const todoListCacheManager: TodoListCacheManger = new TodoListCacheManger(redisClient);
+    const todoListCacheManager: TodoListCacheManager = new TodoListCacheManager(redisClient);
 
     const todoListMongoDal: TodoListDal = new TodoListMongoDal(todoListCacheManager);
-
     const todoListLogic = new TodoListLogic(todoListMongoDal);
     const todoRestService = new TodoListRestService(todoListLogic);
     todoRestService.registerRoutes(restServer);
+
+    const usersMongoDal: UsersDal = new UsersMongoDal();
+    const usersLogic = new UsersLogic(usersMongoDal);
+    const usersRestService = new UsersRestService(usersLogic);
+    usersRestService.registerRoutes(restServer);
 
     return Q.all([
         todoListMongoDal.init(mongoClient),

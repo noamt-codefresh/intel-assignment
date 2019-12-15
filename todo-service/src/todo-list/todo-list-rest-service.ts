@@ -1,10 +1,10 @@
 
 import {Next, Request, Response, Server} from "restify";
 import {TodoListLogic} from "./todo-list-logic";
-import {RestServer, TodoList} from "../types/todo-list-types";
+import {Routable, TodoList} from "../types/todo-list-types";
 
 
-export class TodoListRestService implements RestServer {
+export class TodoListRestService implements Routable {
 
     constructor(private _todoListLogic: TodoListLogic) {}
 

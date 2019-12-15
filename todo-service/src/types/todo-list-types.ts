@@ -4,7 +4,7 @@ import {Server} from "restify";
 
 export const TODO_LIST_DB_NAME: string = "todo";
 
-export interface RestServer {
+export interface Routable {
     registerRoutes(restServer: Server): void
 }
 
@@ -55,4 +55,10 @@ export interface User extends MongoDocument{
 export interface UserInput {
     name: User['name'];
     password: User['password'];
+}
+
+export interface JwtContext {
+    iat: string;
+    exp: number;
+    token: string;
 }

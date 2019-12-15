@@ -1,7 +1,6 @@
-import {TodoList, UserInput, UsersDal} from "../types/todo-list-types";
+import {TODO_LIST_DB_NAME, User, UserInput, UsersDal} from "../types/todo-list-types";
 import {Collection, MongoClient} from "mongodb";
-import {TODO_LIST_DB_NAME} from "../../dist/types/todo-list-types";
-import {User} from "../../dist/types/user-types";
+
 import Q = require("q");
 
 const USERS_COLLECTION_NAME: string = "users";

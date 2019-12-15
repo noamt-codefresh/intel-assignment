@@ -1,7 +1,7 @@
 import {TodoList, TodoListDal} from "../types/todo-list-types";
 import {Collection, MongoClient} from "mongodb";
 import Q = require("q");
-import {TodoListCacheManger} from "./todo-list-cache-manger";
+import {TodoListCacheManager} from "./todo-list-cache-manager";
 import {TODO_LIST_DB_NAME} from "../../dist/types/todo-list-types";
 
 const TODO_LIST_COLLECTION_NAME: string = "todoLists";
@@ -10,7 +10,7 @@ export class TodoListMongoDal implements TodoListDal {
 
     private _todoListCollection!: Collection;
 
-    constructor(private _cacheManager: TodoListCacheManger) {}
+    constructor(private _cacheManager: TodoListCacheManager) {}
 
     public async init(mongoClient: MongoClient): Promise<void> {
         if (!mongoClient.isConnected()) {
