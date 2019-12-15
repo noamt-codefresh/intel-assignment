@@ -25,8 +25,9 @@ export class UsersRestService implements Routable {
             await this._usersLogic.register({name, password});
             res.send(201);
         } catch (e) {
-            const httpStatusCode = ErrorUtils.getHttpStatusCode(e);
-            res.send(httpStatusCode, e);
+            error = e;
+            const httpStatusCode = ErrorUtils.getHttpStatusCode(error);
+            res.send(httpStatusCode, error);
         } finally {
             next(error);
         }
