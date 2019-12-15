@@ -1,6 +1,7 @@
 import {JwtContext, Routable} from "../types/todo-list-types";
 import {Next, Request, Response, Server} from "restify";
 import {UsersLogic} from "./users-logic";
+import {ErrorUtils} from "../utils/error-utils";
 const rjwt = require('restify-jwt-community');
 
 
@@ -24,7 +25,7 @@ export class UsersRestService implements Routable {
             await this._usersLogic.register({name, password});
             res.send(201);
         } catch (e) {
-            const httpStatusCode = this._getHttpStatusCode(e);
+            const httpStatusCode = ErrorUtils.getHttpStatusCode(e);
             res.send(httpStatusCode, e);
         } finally {
             next(error);
@@ -33,15 +34,6 @@ export class UsersRestService implements Routable {
 
     private async _authenticateUser(req: Request, res: Response, next: Next): Promise<JwtContext> {
 
-    }
-
-    private _getHttpStatusCode(error: Error): number {
-        const errorName: string = error && error.name;
-        switch (errorName) {
-            case "USER_INVALID_INPUT": return 400;
-            case "RESOURCE_ALREADY_EXISTS": return 409;
-            default: return 500;
-        }
     }
 
 }
