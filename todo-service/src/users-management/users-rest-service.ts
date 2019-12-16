@@ -26,8 +26,8 @@ export class UsersRestService implements Routable {
             res.send(201);
         } catch (e) {
             error = e;
-            const httpStatusCode = ErrorUtils.getHttpStatusCode(error);
-            res.send(httpStatusCode, error);
+            const {message, code} = ErrorUtils.httpErrorHandler(error);
+            res.send(code, message);
         } finally {
             next(error);
         }

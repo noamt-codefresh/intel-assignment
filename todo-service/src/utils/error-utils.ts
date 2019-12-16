@@ -1,23 +1,24 @@
 
 
+//export class ErrorUtils {
+
+import {TodoListTypeGuard} from "../types/todo-list-type-guard";
+import {HttpError} from "../errors/http-error";
+
+
 export class ErrorUtils {
 
-    public static createError(message: string, name?: string): Error {
-        const error = new Error(message);
-        if (name) {
-           error.name = name;
+    public static httpErrorHandler(error: HttpError | Error): { message: string, code: number } {
+        if(TodoListTypeGuard.isHttpError(error)) {
+            return {message: error.message, code: error.httpStatusCode};
         }
-        return error;
-    }
 
-    public static getHttpStatusCode(error: Error): number {
-        const errorName: string = error && error.name;
-        switch (errorName) {
-            case "USER_INVALID_INPUT": return 400;
-            case "RESOURCE_ALREADY_EXISTS": return 409;
-            default: return 500;
-        }
+        return { message: error.message, code: 500 };
     }
-
 
 }
+
+
+
+
+
