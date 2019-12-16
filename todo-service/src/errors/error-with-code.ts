@@ -6,4 +6,8 @@ export class ErrorWithCode extends Error {
         super(message);
     }
 
+    public toString() {
+        return `[${this.code}] ${this.message}`;
+    }
+
 }

@@ -38,7 +38,7 @@ export class UsersRestService implements Routable {
         let error = null;
         try {
             const {userName: name, userPassword: password} = req.body;
-            const jwtContext = await this._usersLogic.authenticate({name, password});
+            const jwtContext: JwtContext = await this._usersLogic.authenticate({name, password});
             res.send(200, jwtContext);
         } catch (e) {
             error = e;

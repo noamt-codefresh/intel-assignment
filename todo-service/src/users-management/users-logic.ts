@@ -18,7 +18,7 @@ export class UsersLogic {
         console.log("UsersLogic.register: Adding user", userInput.name);
         try {
             userInput.password = await Q.nfcall(Bcrypt.hash, userInput.password, 10);
-        } catch (e) {
+        } catch (err) {
             console.error("UsersLogic.register: Failed hashing user '", userInput.name, "' password on", err);
             return Q.reject(new ErrorWithCode("failed registering user",  ERROR_CODES.THIRD_PARTY_ERROR));
         }
@@ -33,7 +33,7 @@ export class UsersLogic {
         }
 
         if (user) {
-            return Q.reject(new ErrorWithCode(`user: '${userInput.name}' already exists`,  ERROR_CODES.USER_EXISTS_ERROR));
+            return Q.reject(new ErrorWithCode(`user: ${userInput.name} already exists`,  ERROR_CODES.USER_EXISTS_ERROR));
         }
 
         try {
@@ -53,7 +53,7 @@ export class UsersLogic {
 
         let user: User;
         try {
-            user = await this._userDal.getUser(userInput);
+            user = await this._userDal.getUser({name: userInput.name}); // Assuming name is unique just like an email for simplicity
         } catch (err) {
             return Q.reject(err);
         }

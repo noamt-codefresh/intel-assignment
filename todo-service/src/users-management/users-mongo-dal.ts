@@ -48,7 +48,7 @@ export class UsersMongoDal implements UsersDal {
 
         const user = Object.assign<UserInput, MongoDocument>(userInput, {_id: result.insertedId as ObjectId});
 
-        console.log(`${this.constructor.name}.getUser: Successfully retrieved user '${name} with id '${user._id.toHexString()}'`);
+        console.log(`${this.constructor.name}.getUser: Successfully retrieved user '${user.name} with id '${user._id.toHexString()}'`);
         return user;
     }
 
