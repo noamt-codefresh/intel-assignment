@@ -1,7 +1,9 @@
 
 import {Next, Request, Response, Server} from "restify";
 import {TodoListLogic} from "./todo-list-logic";
-import {Routable, TodoList} from "../types/todo-list-types";
+import {Routable, TodoList, User} from "../types/todo-list-types";
+import {ErrorUtils} from "../utils/error-utils";
+import {TodoListInput} from "../../dist/types/todo-list-types";
 
 
 export class TodoListRestService implements Routable {
@@ -27,7 +29,19 @@ export class TodoListRestService implements Routable {
     }
 
     private async _addTodoList(req: Request, res: Response, next: Next): Promise<void> {
-        res.send(201)
+        let error = null;
+        try {
+            const todoListInput: TodoListInput =  Object.assign(req.body, req.query._id);
+            const todoList: TodoList = await this._todoListLogic.addTodoList(todoListInput);
+            res.send(201, todoList);
+        } catch (e) {
+            error = e;
+            console.error("UsersRestService._addTodoList: Failed adding todo list on", error.stack);
+            const {message, code, httpStatus} = ErrorUtils.httpErrorHandler(error);
+            res.send(httpStatus, {message, code});
+        } finally {
+            next(error);
+        }
     }
 
     private async _updateTodoList(req: Request, res: Response, next: Next): Promise<void> {

@@ -1,7 +1,4 @@
-import {UserInput} from "./todo-list-types";
-import {ErrorWithCode} from "../errors/error-with-code";
-
-
+import {TodoListInput, UserInput} from "./todo-list-types";
 
 
 export class TodoListTypeGuard {
@@ -10,8 +7,7 @@ export class TodoListTypeGuard {
            return arg && arg.name && arg.password
     }
 
-    public static isErrorWithCode(arg: any): arg is ErrorWithCode {
-        return arg && arg.message && arg.code;
+    public static isTodoListInput(arg: any): arg is TodoListInput {
+        return arg && arg.userId && arg.items && arg.title;
     }
-
 }
