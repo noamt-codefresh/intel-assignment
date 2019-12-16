@@ -44,6 +44,7 @@ Q.when().then( () => {
 
     return Q.all([
         todoListMongoDal.init(mongoClient),
+        usersMongoDal.init(mongoClient),
         Q.nfcall(restServer.listen.bind(restServer), restServerPort)
     ]);
 }).then(() => {

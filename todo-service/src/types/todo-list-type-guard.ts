@@ -1,5 +1,5 @@
 import {UserInput} from "./todo-list-types";
-import {HttpError} from "../errors/http-error";
+import {ErrorWithCode} from "../errors/error-with-code";
 
 
 
@@ -10,8 +10,8 @@ export class TodoListTypeGuard {
            return arg && arg.name && arg.password
     }
 
-    public static isHttpError(arg: any): arg is HttpError {
-        return arg && arg.message && arg.httpStatusCode != null;
+    public static isErrorWithCode(arg: any): arg is ErrorWithCode {
+        return arg && arg.message && arg.code;
     }
 
 }

@@ -1,8 +1,9 @@
-import {ObjectId} from "mongodb";
-import {MongoClient} from "mongodb";
+import {ObjectId, MongoClient} from "mongodb";
 import {Server} from "restify";
 
 export const TODO_LIST_DB_NAME: string = "todo";
+
+export const JWT_SECRET: string = "!@!@!super-secret-shhh!@!@!@";
 
 export interface Routable {
     registerRoutes(restServer: Server): void
@@ -18,7 +19,7 @@ export interface TodoListDal extends MongoDbCollectionInit {
 
 export interface UsersDal extends MongoDbCollectionInit {
    addUser(user: UserInput): Promise<User>;
-   getUser(user: UserInput): Promise<User>;
+   getUser(userQuery: UserQuery): Promise<User>;
 }
 
 export interface MongoDocument {
@@ -57,8 +58,27 @@ export interface UserInput {
     password: User['password'];
 }
 
+export interface UserQuery {
+    _id?: string;
+    name?: User['name'];
+    password?: User['password'];
+}
+
 export interface JwtContext {
     iat: string;
     exp: number;
     token: string;
+}
+
+export enum ERROR_CODES {
+    GENERAL_ERROR = "GENERAL_ERROR",
+
+    USER_INVALID_INPUT = "USER_INVALID_INPUT",
+    USER_UNAUTHORIZED_ERROR = "USER_UNAUTHORIZED_ERROR",
+    USER_EXISTS_ERROR = "USER_EXISTS_ERROR",
+    USER_DOESNT_EXIST = "USER_DOESNT_EXIST",
+
+    THIRD_PARTY_ERROR = "THIRD_PARTY_ERROR",
+
+    DB_ERROR = "DB_ERROR"
 }
