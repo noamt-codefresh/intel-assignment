@@ -15,6 +15,7 @@ export interface MongoDbCollectionInit {
 
 export interface TodoListDal extends MongoDbCollectionInit {
     getTodoLists(userId: string): Promise<TodoList[]>;
+    addTodoList(todoListInput: TodoListInput): Promise<TodoList>;
 }
 
 export interface UsersDal extends MongoDbCollectionInit {

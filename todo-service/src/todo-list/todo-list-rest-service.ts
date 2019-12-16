@@ -1,7 +1,7 @@
 
 import {Next, Request, Response, Server} from "restify";
 import {TodoListLogic} from "./todo-list-logic";
-import {Routable, TodoList, User} from "../types/todo-list-types";
+import {JwtContext, Routable, TodoList, User} from "../types/todo-list-types";
 import {ErrorUtils} from "../utils/error-utils";
 import {TodoListInput} from "../../dist/types/todo-list-types";
 
@@ -12,7 +12,7 @@ export class TodoListRestService implements Routable {
 
     public registerRoutes(restServer: Server): void {
         restServer.get("/:userId/todo/lists", this._getTodoLists.bind(this));
-        restServer.post("/:userId/todo/list", this._addTodoList.bind(this));
+        restServer.post("/todo/list", this._addTodoList.bind(this));
         restServer.patch("/:userId/todo/:listId/item", this._updateTodoList.bind(this));
         restServer.post("/:userId/todo/:listId/item", this._updateTodoList.bind(this));
         restServer.del("/:userId/todo/:listId/item", this._deleteTodoList.bind(this));
@@ -31,7 +31,7 @@ export class TodoListRestService implements Routable {
     private async _addTodoList(req: Request, res: Response, next: Next): Promise<void> {
         let error = null;
         try {
-            const todoListInput: TodoListInput =  Object.assign(req.body, req.query._id);
+            const todoListInput: TodoListInput =  Object.assign(req.body, (req as Jwt)?.user?.userId);
             const todoList: TodoList = await this._todoListLogic.addTodoList(todoListInput);
             res.send(201, todoList);
         } catch (e) {

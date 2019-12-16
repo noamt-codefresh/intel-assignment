@@ -22,10 +22,9 @@ export class TodoListLogic {
 
         let todoList: TodoList;
         try {
-            todoList = await this._todoListDal.addTodoList(todoList);
+            todoList = await this._todoListDal.addTodoList(todoListInput);
         } catch (err) {
-            console.error("UsersLogic.register: Failed hashing user '", userInput.name, "' password on", err);
-            return Q.reject(new ErrorWithCode("failed registering user",  ERROR_CODES.THIRD_PARTY_ERROR));
+            return Q.reject(err);
         }
 
 
