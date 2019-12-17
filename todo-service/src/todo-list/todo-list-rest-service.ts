@@ -15,7 +15,7 @@ export class TodoListRestService implements Routable {
         restServer.post("/todo/lists", this._addTodoList.bind(this));
 
         restServer.post("/todo/lists/:listId/item", this._addTodoListItem.bind(this));
-        restServer.patch("/todo/lists/:listId/item/:itemId", this._updateTodoListItem.bind(this));
+        restServer.put("/todo/lists/:listId/item", this._updateTodoListItem.bind(this));
         restServer.del("/todo/lists/:listId/item/:itemId", this._deleteTodoListItem.bind(this));
     }
 
@@ -69,11 +69,38 @@ export class TodoListRestService implements Routable {
     }
 
     private async _updateTodoListItem(req: Request, res: Response, next: Next): Promise<void> {
-        res.send(204)
+        let error = null;
+        try {
+            const todoListId: string = req.params?.listId;
+            const todoListItemInput: TodoListItemInput = req.body;
+            await this._todoListLogic.updateTodoListItem(todoListId, todoListItemInput);
+            res.send(204)
+        } catch (e) {
+            error = e;
+            console.error("UsersRestService._updateTodoListItem: Failed to update todo list on", error.stack);
+            const {message, code, httpStatus} = ErrorUtils.httpErrorHandler(error);
+            res.send(httpStatus, {message, code});
+        } finally {
+            next(error);
+        }
+
     }
 
     private async _deleteTodoListItem(req: Request, res: Response, next: Next): Promise<void> {
-
+        let error = null;
+        try {
+            const todoListId: string = req.params?.listId;
+            const todoListItemId: string = req.params?.itemId;
+            await this._todoListLogic.deleteTodoListItem(todoListId, todoListItemId);
+            res.send(204)
+        } catch (e) {
+            error = e;
+            console.error("UsersRestService._addTodoListItem: Failed adding todo list on", error.stack);
+            const {message, code, httpStatus} = ErrorUtils.httpErrorHandler(error);
+            res.send(httpStatus, {message, code});
+        } finally {
+            next(error);
+        }
     }
 
 }

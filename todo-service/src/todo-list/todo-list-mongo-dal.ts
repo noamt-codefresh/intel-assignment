@@ -80,9 +80,7 @@ export class TodoListMongoDal implements TodoListDal {
 
         let result;
         try {
-            result = await this._todoListCollection.updateOne({_id: todoListId}, {$push: {items: todoListItem}});
-
-            console.log(result);
+            result = await this._todoListCollection.updateOne({_id: new ObjectId(todoListId)}, {$push: {items: todoListItem}});
         } catch (err) {
             return Q.reject(new ErrorWithCode(`failed while trying to insert todo list item: '${todoListItemInput.name}' on: ${err}`, ERROR_CODES.DB_ERROR));
         }
@@ -96,7 +94,53 @@ export class TodoListMongoDal implements TodoListDal {
         return todoListItem;
     }
 
+    public async updateTodoListItem(todoListId: string, todoListItem: TodoListItem): Promise<void> {
+        if (!todoListItem || !todoListId) {
+            return Q.reject(new Error(`data store received invalid args: todo list item: ${todoListItem} / todo list id: ${todoListId}`));
+        }
+        const {_id: todoListItemId } = todoListItem;
+        //TODO: change todolistitemId to objectid duringupdate
+        console.log(`${this.constructor.name}.updateTodoListItem: Updating todo list item '${todoListItemId} of list ${todoListId}'`);
 
+        let result;
+        try {
+            result = await this._todoListCollection.updateOne({_id: new ObjectId(todoListId), "items._id": new ObjectId(todoListItemId)},{$set: {"items.$": todoListItem}});
+        } catch (err) {
+            return Q.reject(new ErrorWithCode(`failed while trying to insert todo list item: '${todoListItemId}' on: ${err}`, ERROR_CODES.DB_ERROR));
+        }
+
+        const {modifiedCount} = result;
+        if (!modifiedCount) {
+            return Q.reject(new ErrorWithCode(`failed to update item: ${todoListItemId}, cannot find list: ${todoListId} or item`, ERROR_CODES.TODO_LIST_DOESNT_EXIST))
+        }
+
+        console.log(`${this.constructor.name}.updateTodoListItem: Successfully updated todo list item '${todoListItemId} of list '${todoListId}'`);
+        return Q.resolve(undefined);
+    }
+
+    public async deleteTodoListItem(todoListId: string, todoListItemId: string): Promise<void> {
+        if (!todoListId || !todoListItemId) {
+            return Q.reject(new Error(`data store received invalid args: todo list item: ${todoListItemId} / todo list id: ${todoListId}`));
+        }
+
+        console.log(`${this.constructor.name}.deleteTodoListItem: Deleting todo list item '${todoListItemId} of list ${todoListId}'`);
+
+        let result;
+        try {
+            result = await this._todoListCollection.deleteOne({_id: new ObjectId(todoListId), "items._id": new ObjectId(todoListItemId)});
+            console.log(result);
+        } catch (err) {
+            return Q.reject(new ErrorWithCode(`failed while trying to delete todo list item: '${todoListItemId}' on: ${err}`, ERROR_CODES.DB_ERROR));
+        }
+
+        const {deletedCount} = result;
+        if (!deletedCount) {
+            return Q.reject(new ErrorWithCode(`failed to delete item: ${todoListItemId}, cannot find list: ${todoListId} or item`, ERROR_CODES.TODO_LIST_DOESNT_EXIST))
+        }
+
+        console.log(`${this.constructor.name}.deleteTodoListItem: Successfully updated todo list item '${todoListItemId} of list '${todoListId}'`);
+        return Q.resolve(undefined);
+    }
 
 
 }

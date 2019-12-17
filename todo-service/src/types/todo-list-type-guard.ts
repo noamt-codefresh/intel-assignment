@@ -1,4 +1,4 @@
-import {TodoListInput, TodoListItemInput, UserInput} from "./todo-list-types";
+import {TodoListInput, TodoListItem, TodoListItemInput, UserInput} from "./todo-list-types";
 
 
 export class TodoListTypeGuard {
@@ -11,7 +11,11 @@ export class TodoListTypeGuard {
         return arg && arg.userId && arg.items && arg.title;
     }
 
-    static isTodoListItemInput(arg: any): arg is TodoListItemInput {
+    public static isTodoListItemInput(arg: any): arg is TodoListItemInput {
         return arg && arg.name && arg.done !== undefined;
+    }
+
+    public static isTodoListItem(arg: any): arg is TodoListItem {
+        return arg && arg._id && TodoListTypeGuard.isTodoListItemInput(arg);
     }
 }

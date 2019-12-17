@@ -76,5 +76,41 @@ export class TodoListLogic {
 
     }
 
+    public async updateTodoListItem(todoListId: string, listItem: TodoListItem): Promise<void> {
+        if(!TodoListTypeGuard.isTodoListItem(listItem)) {
+            const error = new ErrorWithCode(`received invalid todo list item input: '${ JSON.stringify(listItem) }'`,  ERROR_CODES.USER_INVALID_INPUT);
+            return Q.reject(error);
+        }
+
+        console.log("TodoListLogic.updateTodoListItem: Updating todo list item", todoListId);
+
+        try {
+            await this._todoListDal.updateTodoListItem(todoListId, listItem);
+        } catch (err) {
+            return Q.reject(err);
+        }
+
+        console.log("TodoListLogic.updateTodoListItem: Successfully added todo list item", todoListId);
+        return Q.resolve(undefined);
+    }
+
+    public async deleteTodoListItem(todoListId: string, todoListItemId: string): Promise<void> {
+        if (!todoListId || !todoListItemId) {
+           return Q.reject(new ErrorWithCode(`received invalid list id: ${todoListId} or list item: ${todoListItemId}`, ERROR_CODES.USER_INVALID_INPUT));
+        }
+
+        console.log("TodoListLogic.deleteTodoListItem: deleting todo list item", todoListItemId);
+
+        try {
+            await this._todoListDal.deleteTodoListItem(todoListId, todoListItemId);
+        } catch (err) {
+            return Q.reject(err);
+        }
+
+        console.log("TodoListLogic.deleteTodoListItem: Successfully deleted todo list item", todoListItemId);
+        return Q.resolve(undefined);
+
+    }
+
 
 }
