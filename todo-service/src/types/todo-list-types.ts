@@ -16,6 +16,7 @@ export interface MongoDbCollectionInit {
 export interface TodoListDal extends MongoDbCollectionInit {
     getTodoLists(userId: string): Promise<TodoList[]>;
     addTodoList(todoListInput: TodoListInput): Promise<TodoList>;
+    addTodoListItem(todoListId: string, todoListItemInput: TodoListItemInput): Promise<TodoListItem>;
 }
 
 export interface UsersDal extends MongoDbCollectionInit {
@@ -78,6 +79,8 @@ export enum ERROR_CODES {
     USER_UNAUTHORIZED_ERROR = "USER_UNAUTHORIZED_ERROR",
     USER_EXISTS_ERROR = "USER_EXISTS_ERROR",
     USER_DOESNT_EXIST = "USER_DOESNT_EXIST",
+
+    TODO_LIST_DOESNT_EXIST = "TODO_LIST_DOESNT_EXIST",
 
     THIRD_PARTY_ERROR = "THIRD_PARTY_ERROR",
 

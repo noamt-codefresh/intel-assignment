@@ -1,7 +1,7 @@
 
 import {Next, Request, Response, Server} from "restify";
 import {TodoListLogic} from "./todo-list-logic";
-import {JwtContext, Routable, TodoList, User} from "../types/todo-list-types";
+import {Routable, TodoList, TodoListItem, TodoListItemInput} from "../types/todo-list-types";
 import {ErrorUtils} from "../utils/error-utils";
 import {TodoListInput} from "../../dist/types/todo-list-types";
 
@@ -11,27 +11,34 @@ export class TodoListRestService implements Routable {
     constructor(private _todoListLogic: TodoListLogic) {}
 
     public registerRoutes(restServer: Server): void {
-        restServer.get("/:userId/todo/lists", this._getTodoLists.bind(this));
-        restServer.post("/todo/list", this._addTodoList.bind(this));
-        restServer.patch("/:userId/todo/:listId/item", this._updateTodoList.bind(this));
-        restServer.post("/:userId/todo/:listId/item", this._updateTodoList.bind(this));
-        restServer.del("/:userId/todo/:listId/item", this._deleteTodoList.bind(this));
+        restServer.get("/todo/lists", this._getTodoLists.bind(this));
+        restServer.post("/todo/lists", this._addTodoList.bind(this));
+
+        restServer.post("/todo/lists/:listId/item", this._addTodoListItem.bind(this));
+        restServer.patch("/todo/lists/:listId/item/:itemId", this._updateTodoListItem.bind(this));
+        restServer.del("/todo/lists/:listId/item/:itemId", this._deleteTodoListItem.bind(this));
     }
 
-    private async _getTodoLists(req: Request, res: Response, next: Next): Promise<TodoList[]> {
-        /*    try {
-               const todoLists = await this._todoListLogic.()
-            } catch (err) {
-
-            }
-            return this;*/
-        return null;
+    private async _getTodoLists(req: Request, res: Response, next: Next): Promise<void> {
+        let error = null;
+        try {
+            const {userId} = (req as any)?.user;
+            const todoLists: TodoList[] = await this._todoListLogic.getTodoLists(userId);
+            res.send(200, todoLists);
+        } catch (e) {
+            error = e;
+            console.error("UsersRestService._getTodoLists: Failed adding todo list on", error.stack);
+            const {message, code, httpStatus} = ErrorUtils.httpErrorHandler(error);
+            res.send(httpStatus, {message, code});
+        } finally {
+            next(error);
+        }
     }
 
     private async _addTodoList(req: Request, res: Response, next: Next): Promise<void> {
         let error = null;
         try {
-            const todoListInput: TodoListInput =  Object.assign(req.body, (req as Jwt)?.user?.userId);
+            const todoListInput: TodoListInput =  Object.assign(req.body, {userId: (req as any)?.user?.userId});
             const todoList: TodoList = await this._todoListLogic.addTodoList(todoListInput);
             res.send(201, todoList);
         } catch (e) {
@@ -44,11 +51,28 @@ export class TodoListRestService implements Routable {
         }
     }
 
-    private async _updateTodoList(req: Request, res: Response, next: Next): Promise<void> {
+    private async _addTodoListItem(req: Request, res: Response, next: Next): Promise<void> {
+        let error = null;
+        try {
+            const todoListId: string = req.params?.listId;
+            const todoListItemInput: TodoListItemInput = req.body;
+            const todoListItem: TodoListItem = await this._todoListLogic.addTodoListItem(todoListId, todoListItemInput);
+            res.send(201, todoListItem);
+        } catch (e) {
+            error = e;
+            console.error("UsersRestService._addTodoListItem: Failed adding todo list on", error.stack);
+            const {message, code, httpStatus} = ErrorUtils.httpErrorHandler(error);
+            res.send(httpStatus, {message, code});
+        } finally {
+            next(error);
+        }
+    }
+
+    private async _updateTodoListItem(req: Request, res: Response, next: Next): Promise<void> {
         res.send(204)
     }
 
-    private async _deleteTodoList(req: Request, res: Response, next: Next): Promise<void> {
+    private async _deleteTodoListItem(req: Request, res: Response, next: Next): Promise<void> {
 
     }
 
