@@ -15,6 +15,7 @@ export class TodoListRestService implements Routable {
         restServer.get("/todo/lists", this._getTodoLists.bind(this));
         restServer.post("/todo/lists", this._addTodoList.bind(this));
 
+        restServer.get("/todo/lists/:listId/items", this._getTodoListItems.bind(this));
         restServer.post("/todo/lists/:listId/item", this._addTodoListItem.bind(this));
         restServer.put("/todo/lists/:listId/item/:itemId", this._updateTodoListItem.bind(this));
         restServer.del("/todo/lists/:listId/item/:itemId", this._deleteTodoListItem.bind(this));
@@ -45,6 +46,23 @@ export class TodoListRestService implements Routable {
         } catch (e) {
             error = e;
             console.error("UsersRestService._addTodoList: Failed adding todo list on", error.stack);
+            const {message, code, httpStatus} = ErrorUtils.httpErrorHandler(error);
+            res.send(httpStatus, {message, code});
+        } finally {
+            next(error);
+        }
+    }
+
+    private async _getTodoListItems(req: Request, res: Response, next: Next): Promise<void> {
+        let error = null;
+        try {
+            const todoListId: string = req.params?.listId;
+            const {userId} = (req as any)?.user;
+            const todoListItems: TodoListItem[] = await this._todoListLogic.getTodoListItems(todoListId, userId);
+            res.send(200, todoListItems);
+        } catch (e) {
+            error = e;
+            console.error("UsersRestService._getTodoListItmes: Failed retrieving todo list items on", error.stack);
             const {message, code, httpStatus} = ErrorUtils.httpErrorHandler(error);
             res.send(httpStatus, {message, code});
         } finally {

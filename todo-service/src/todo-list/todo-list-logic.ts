@@ -49,18 +49,36 @@ export class TodoListLogic {
         let todoList: TodoList;
         try {
             todoList = await this._todoListDal.addTodoList(todoListInput);
+
+            // TODO: implement hmset of hashes https://medium.com/@ashok.tankala/redis-hashmaps-or-hashes-example-in-node-js-54ff64229cf8
+            const key = `${TODOLISTS_CACHE_KEY_PREFIX}:${todoListInput.userId}`;
+
+            await this._cacheManager.set(key, todoList)
         } catch (err) {
             return Q.reject(err);
-        }
-        // TODO: implement hmset of hashes https://medium.com/@ashok.tankala/redis-hashmaps-or-hashes-example-in-node-js-54ff64229cf8
-        const key = `${TODOLISTS_CACHE_KEY_PREFIX}:${todoListInput.userId}`
-        try {
-            this._cacheManager.set(key, )
         }
 
         console.log("TodoListLogic.addTodoList: Successfully added todo list", todoListInput.title, "for user", todoListInput.userId);
         return todoList;
 
+    }
+
+    public async getTodoListItems(todoListId: string, userId: string): Promise<TodoListItem[]> {
+        if (!todoListId || !userId) {
+            return Q.reject(new ErrorWithCode(`received invalid list id: ${todoListId} or user id: ${userId}`, ERROR_CODES.USER_INVALID_INPUT));
+        }
+
+        console.log("TodoListLogic.getTodoListItems: Retrieving todo list items for list", todoListId);
+
+        let todoListItems: TodoListItem[];
+        try {
+            todoListItems = await this._todoListDal.getTodoListItems(todoListId);
+        } catch (err) {
+            return Q.reject(err);
+        }
+
+        console.log("TodoListLogic.getTodoListItems: Successfully added todo list", todoListId);
+        return todoListItems;
     }
 
     public async addTodoListItem(todoListId: string, todoListItemInput: TodoListItemInput, userId: string): Promise<TodoListItem> {

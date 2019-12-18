@@ -40,13 +40,34 @@ export class TodoListMongoDal implements TodoListDal {
         console.debug(`${this.constructor.name}.getTodoLists: Retrieving todo lists for user '${userId}'`);
         let todoLists;
         try {
-            todoLists = await this._todoListCollection.find<TodoList>({userId}).project({userId: 0}).toArray();
+            todoLists = await this._todoListCollection.find<TodoList>({userId}).project({userId: 0, items: 0}).toArray();
         } catch (err) {
             return Q.reject(new ErrorWithCode(`failed while trying to query todo lists with query ${{userId}} on: ${err}`, ERROR_CODES.DB_ERROR));
         }
 
         console.debug(`${this.constructor.name}.getTodoLists: Successfully retrieved ${_.size(todoLists)} todo lists for user ${userId}'`);
         return todoLists;
+    }
+
+    public async getTodoListItems(todoListId: string): Promise<TodoListItem[]> {
+        if (!todoListId) {
+            return Q.reject(new Error('data store received undefined todoList id'));
+        }
+
+        console.debug(`${this.constructor.name}.getTodoListItems: Retrieving todo lists for user '${todoListId}'`);
+        let todoList;
+        try {
+            todoList = await this._todoListCollection.findOne<TodoList>({_id: new ObjectId(todoListId)});
+        } catch (err) {
+            return Q.reject(new ErrorWithCode(`failed while trying to query todo lists with query ${{todoListId}} on: ${err}`, ERROR_CODES.DB_ERROR));
+        }
+
+        if (!todoList) {
+            return Q.reject(new ErrorWithCode(`cannot find list: ${todoListId}`, ERROR_CODES.TODO_LIST_DOESNT_EXIST));
+        }
+
+        console.debug(`${this.constructor.name}.getTodoListItems: Successfully retrieved list ${_.size(todoList.items)} items for list ${todoListId}'`);
+        return todoList.items;
     }
 
     public async addTodoList(todoListInput: TodoListInput): Promise<TodoList> {

@@ -17,6 +17,7 @@ export interface TodoListDal extends MongoDbCollectionInit {
     getTodoLists(userId: string): Promise<TodoList[]>;
     addTodoList(todoListInput: TodoListInput): Promise<TodoList>;
 
+    getTodoListItems(todoListId: string): Promise<TodoListItem[]>
     addTodoListItem(todoListId: string, todoListItemInput: TodoListItemInput): Promise<TodoListItem>;
     updateTodoListItem(todoListId: string, todoListItem: TodoListItem): Promise<void>;
     deleteTodoListItem(todoListId: string, todoListItemId: string): Promise<void>;
@@ -27,10 +28,10 @@ export interface UsersDal extends MongoDbCollectionInit {
    getUser(userQuery: UserQuery): Promise<User>;
 }
 
-export interface CacheManager {
+export interface CacheManager<T> {
     connect(url: string): Promise<void>;
-    get(key: string): Promise<any>;
-    set(key: string, content: any, ttl?: number): Promise<void>;
+    get<T>(key: string): Promise<T>;
+    set(key: string, content: T, ttl?: number): Promise<void>;
 }
 
 export interface MongoDocument {
