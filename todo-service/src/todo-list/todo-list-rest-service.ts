@@ -4,6 +4,7 @@ import {TodoListLogic} from "./todo-list-logic";
 import {Routable, TodoList, TodoListItem, TodoListItemInput} from "../types/todo-list-types";
 import {ErrorUtils} from "../utils/error-utils";
 import {TodoListInput} from "../../dist/types/todo-list-types";
+import _ = require("lodash");
 
 
 export class TodoListRestService implements Routable {
@@ -15,7 +16,7 @@ export class TodoListRestService implements Routable {
         restServer.post("/todo/lists", this._addTodoList.bind(this));
 
         restServer.post("/todo/lists/:listId/item", this._addTodoListItem.bind(this));
-        restServer.put("/todo/lists/:listId/item", this._updateTodoListItem.bind(this));
+        restServer.put("/todo/lists/:listId/item/:itemId", this._updateTodoListItem.bind(this));
         restServer.del("/todo/lists/:listId/item/:itemId", this._deleteTodoListItem.bind(this));
     }
 
@@ -72,8 +73,9 @@ export class TodoListRestService implements Routable {
         let error = null;
         try {
             const todoListId: string = req.params?.listId;
-            const todoListItemInput: TodoListItemInput = req.body;
-            await this._todoListLogic.updateTodoListItem(todoListId, todoListItemInput);
+            const todoListItemId: string = req.params?.itemId;
+            const todoListItem: TodoListItem = _.assign(req.body, {_id: todoListItemId});
+            await this._todoListLogic.updateTodoListItem(todoListId, todoListItem);
             res.send(204)
         } catch (e) {
             error = e;
@@ -95,7 +97,7 @@ export class TodoListRestService implements Routable {
             res.send(204)
         } catch (e) {
             error = e;
-            console.error("UsersRestService._addTodoListItem: Failed adding todo list on", error.stack);
+            console.error("UsersRestService._deleteTodoListItem: Failed deleting todo list item on", error.stack);
             const {message, code, httpStatus} = ErrorUtils.httpErrorHandler(error);
             res.send(httpStatus, {message, code});
         } finally {

@@ -41,7 +41,6 @@ export class TodoListLogic {
             const error = new ErrorWithCode(`received invalid todo list input: '${ JSON.stringify(todoListInput) }'`,  ERROR_CODES.USER_INVALID_INPUT);
             return Q.reject(error);
         }
-
         console.log("TodoListLogic.addTodoList: Adding todo list", todoListInput.title, "for user", todoListInput.userId);
 
         let todoList: TodoList;

@@ -39,7 +39,7 @@ export class TodoListMongoDal implements TodoListDal {
             return Q.reject(new Error('data store received undefined user id'));
         }
 
-        console.log(`${this.constructor.name}.getTodoLists: Retrieving todo lists for user '${userId}'`);
+        console.debug(`${this.constructor.name}.getTodoLists: Retrieving todo lists for user '${userId}'`);
         let todoLists;
         try {
             todoLists = await this._todoListCollection.find<TodoList>({userId}).project({userId: 0}).toArray();
@@ -47,7 +47,7 @@ export class TodoListMongoDal implements TodoListDal {
             return Q.reject(new ErrorWithCode(`failed while trying to query todo lists with query ${{userId}} on: ${err}`, ERROR_CODES.DB_ERROR));
         }
 
-        console.log(`${this.constructor.name}.getTodoLists: Successfully retrieved ${_.size(todoLists)} todo lists for user ${userId}'`);
+        console.debug(`${this.constructor.name}.getTodoLists: Successfully retrieved ${_.size(todoLists)} todo lists for user ${userId}'`);
         return todoLists;
     }
 
@@ -56,7 +56,8 @@ export class TodoListMongoDal implements TodoListDal {
             return Q.reject(new Error('data store received undefined todo list'));
         }
 
-        console.log(`${this.constructor.name}.addTodoList: Adding todo list '${todoListInput.title}' for user '${todoListInput.userId}'`);
+        todoListInput = _.assign(todoListInput, { items: [] });
+        console.debug(`${this.constructor.name}.addTodoList: Adding todo list '${todoListInput.title}' for user '${todoListInput.userId}'`);
         let result;
         try {
             result = await this._todoListCollection.insertOne(todoListInput);
@@ -66,8 +67,8 @@ export class TodoListMongoDal implements TodoListDal {
 
         const todoList = Object.assign<TodoListInput, MongoDocument>(todoListInput, {_id: result.insertedId as ObjectId});
 
-        console.log(`${this.constructor.name}.addTodoList: Successfully added todo list '${todoList.title} with id '${todoList._id.toHexString()}'`);
-        return todoList;
+        console.debug(`${this.constructor.name}.addTodoList: Successfully added todo list '${todoList.title} with id '${todoList._id.toHexString()}'`);
+        return todoList as TodoList;
     }
 
     public async addTodoListItem(todoListId: string, todoListItemInput: TodoListItemInput): Promise<TodoListItem> {
@@ -75,7 +76,7 @@ export class TodoListMongoDal implements TodoListDal {
             return Q.reject(new Error(`data store received invalid args: todo list item: ${todoListItemInput} / todo list id: ${todoListId}`));
         }
 
-        console.log(`${this.constructor.name}.addTodoListItem: Adding todo list item '${todoListItemInput.name}'`);
+        console.debug(`${this.constructor.name}.addTodoListItem: Adding todo list item '${todoListItemInput.name}'`);
         const todoListItem = _.assign(todoListItemInput, {_id: new ObjectId()});
 
         let result;
@@ -90,7 +91,7 @@ export class TodoListMongoDal implements TodoListDal {
             return Q.reject(new ErrorWithCode(`failed to add item: ${todoListItem.name}, cannot find list id: ${todoListId}`, ERROR_CODES.TODO_LIST_DOESNT_EXIST))
         }
 
-        console.log(`${this.constructor.name}.addTodoListItem: Successfully added todo list item '${todoListItem.name} with id '${todoListItem._id.toHexString()}'`);
+        console.debug(`${this.constructor.name}.addTodoListItem: Successfully added todo list item '${todoListItem.name} with id '${todoListItem._id.toHexString()}'`);
         return todoListItem;
     }
 
@@ -98,23 +99,23 @@ export class TodoListMongoDal implements TodoListDal {
         if (!todoListItem || !todoListId) {
             return Q.reject(new Error(`data store received invalid args: todo list item: ${todoListItem} / todo list id: ${todoListId}`));
         }
-        const {_id: todoListItemId } = todoListItem;
-        //TODO: change todolistitemId to objectid duringupdate
-        console.log(`${this.constructor.name}.updateTodoListItem: Updating todo list item '${todoListItemId} of list ${todoListId}'`);
 
+        console.debug(`${this.constructor.name}.updateTodoListItem: Updating todo list item '${todoListItem._id} of list ${todoListId}'`);
+
+        todoListItem._id = new ObjectId(todoListItem._id);
         let result;
         try {
-            result = await this._todoListCollection.updateOne({_id: new ObjectId(todoListId), "items._id": new ObjectId(todoListItemId)},{$set: {"items.$": todoListItem}});
+            result = await this._todoListCollection.updateOne({_id: new ObjectId(todoListId), "items._id": todoListItem._id},{$set: {"items.$": todoListItem}});
         } catch (err) {
-            return Q.reject(new ErrorWithCode(`failed while trying to insert todo list item: '${todoListItemId}' on: ${err}`, ERROR_CODES.DB_ERROR));
+            return Q.reject(new ErrorWithCode(`failed while trying to insert todo list item: '${todoListItem._id}' on: ${err}`, ERROR_CODES.DB_ERROR));
         }
 
         const {modifiedCount} = result;
         if (!modifiedCount) {
-            return Q.reject(new ErrorWithCode(`failed to update item: ${todoListItemId}, cannot find list: ${todoListId} or item`, ERROR_CODES.TODO_LIST_DOESNT_EXIST))
+            return Q.reject(new ErrorWithCode(`failed to update item: ${todoListItem._id}, cannot find list: ${todoListId} or item`, ERROR_CODES.TODO_LIST_DOESNT_EXIST))
         }
 
-        console.log(`${this.constructor.name}.updateTodoListItem: Successfully updated todo list item '${todoListItemId} of list '${todoListId}'`);
+        console.debug(`${this.constructor.name}.updateTodoListItem: Successfully updated todo list item '${todoListItem._id} of list '${todoListId}'`);
         return Q.resolve(undefined);
     }
 
@@ -123,22 +124,21 @@ export class TodoListMongoDal implements TodoListDal {
             return Q.reject(new Error(`data store received invalid args: todo list item: ${todoListItemId} / todo list id: ${todoListId}`));
         }
 
-        console.log(`${this.constructor.name}.deleteTodoListItem: Deleting todo list item '${todoListItemId} of list ${todoListId}'`);
+        console.debug(`${this.constructor.name}.deleteTodoListItem: Deleting todo list item '${todoListItemId} of list ${todoListId}'`);
 
         let result;
         try {
-            result = await this._todoListCollection.deleteOne({_id: new ObjectId(todoListId), "items._id": new ObjectId(todoListItemId)});
-            console.log(result);
+            result = await this._todoListCollection.updateOne({_id: new ObjectId(todoListId)}, {$pull: {items: {_id: new ObjectId(todoListItemId)}}});
         } catch (err) {
             return Q.reject(new ErrorWithCode(`failed while trying to delete todo list item: '${todoListItemId}' on: ${err}`, ERROR_CODES.DB_ERROR));
         }
 
-        const {deletedCount} = result;
-        if (!deletedCount) {
+        const {modifiedCount} = result;
+        if (!modifiedCount) {
             return Q.reject(new ErrorWithCode(`failed to delete item: ${todoListItemId}, cannot find list: ${todoListId} or item`, ERROR_CODES.TODO_LIST_DOESNT_EXIST))
         }
 
-        console.log(`${this.constructor.name}.deleteTodoListItem: Successfully updated todo list item '${todoListItemId} of list '${todoListId}'`);
+        console.debug(`${this.constructor.name}.deleteTodoListItem: Successfully updated todo list item '${todoListItemId} of list '${todoListId}'`);
         return Q.resolve(undefined);
     }
 

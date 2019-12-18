@@ -8,7 +8,7 @@ export class TodoListTypeGuard {
     }
 
     public static isTodoListInput(arg: any): arg is TodoListInput {
-        return arg && arg.userId && arg.items && arg.title;
+        return arg && arg.userId && arg.title;
     }
 
     public static isTodoListItemInput(arg: any): arg is TodoListItemInput {

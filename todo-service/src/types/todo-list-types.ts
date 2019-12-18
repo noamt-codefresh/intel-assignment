@@ -39,8 +39,8 @@ export interface TodoList extends MongoDocument {
 
 export interface TodoListInput {
     title: TodoList['title'];
-    items: TodoList['items'];
     userId: TodoList['userId'];
+    items?: TodoList['items'];
 }
 
 export interface TodoListItem extends MongoDocument {
