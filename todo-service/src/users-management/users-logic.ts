@@ -71,7 +71,7 @@ export class UsersLogic {
         }
 
         let token = jwt.sign({userId: user._id}, JWT_SECRET, {
-            expiresIn: '3h' // token expires in 3 hrs
+            expiresIn: '24h' // token expires in 3 hrs
         });
 
         // retrieve issue and expiration times

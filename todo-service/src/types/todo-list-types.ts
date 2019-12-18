@@ -31,7 +31,7 @@ export interface UsersDal extends MongoDbCollectionInit {
 export interface CacheManager<T> {
     connect(url: string): Promise<void>;
     get<T>(key: string): Promise<T>;
-    set(key: string, content: T, ttl?: number): Promise<void>;
+    set(key: string, content: any, ttl?: number): Promise<void>;
 }
 
 export interface MongoDocument {

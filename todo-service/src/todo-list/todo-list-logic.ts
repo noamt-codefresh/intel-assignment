@@ -18,7 +18,7 @@ const CACHE_TTL: number = 60 * 10;
 
 export class TodoListLogic {
 
-    constructor(private _todoListDal: TodoListDal, private _cacheManager: CacheManager) {}
+    constructor(private _todoListDal: TodoListDal, private _todoListCacheManager: CacheManager) {}
 
     public async getTodoLists(userId: string): Promise<TodoList[]> {
         if(!userId) {
@@ -49,11 +49,6 @@ export class TodoListLogic {
         let todoList: TodoList;
         try {
             todoList = await this._todoListDal.addTodoList(todoListInput);
-
-            // TODO: implement hmset of hashes https://medium.com/@ashok.tankala/redis-hashmaps-or-hashes-example-in-node-js-54ff64229cf8
-            const key = `${TODOLISTS_CACHE_KEY_PREFIX}:${todoListInput.userId}`;
-
-            await this._cacheManager.set(key, todoList)
         } catch (err) {
             return Q.reject(err);
         }
@@ -70,11 +65,28 @@ export class TodoListLogic {
 
         console.log("TodoListLogic.getTodoListItems: Retrieving todo list items for list", todoListId);
 
+        const key = `${TODOLISTS_CACHE_KEY_PREFIX}:${userId}:${todoListId}`;
         let todoListItems: TodoListItem[];
+
+        try {
+            todoListItems = await this._todoListCacheManager.get(key);
+            if (todoListItems){
+                return todoListItems;
+            }
+        } catch (err) {
+            console.error("TodoListLogic.getTodoListItems: Failed retrieving cache for key", key, "on", err);
+        }
+
         try {
             todoListItems = await this._todoListDal.getTodoListItems(todoListId);
         } catch (err) {
             return Q.reject(err);
+        }
+
+        try {
+            this._todoListCacheManager.setMulti(key, todoListItems);
+        } catch (err) {
+            console.error("TodoListLogic.getTodoListItems: Failed setting cache for key", key, "on", err);
         }
 
         console.log("TodoListLogic.getTodoListItems: Successfully added todo list", todoListId);
@@ -97,8 +109,13 @@ export class TodoListLogic {
         }
 
         console.log("TodoListLogic.addTodoListItem: Successfully added todo list item", todoListItemInput.name);
-        return todoListItem;
+        const key = `${TODOLISTS_CACHE_KEY_PREFIX}:${userId}:${todoListId}`;
 
+        try {
+            await this._updateTodoCache(key, todoListItem);
+        } catch (err) {
+            console.error("TodoListLogic.addTodoListItem: Failed setting cache for key", key);
+        }
     }
 
     public async updateTodoListItem(todoListId: string, listItem: TodoListItem, userId: string): Promise<void> {
@@ -113,6 +130,13 @@ export class TodoListLogic {
             await this._todoListDal.updateTodoListItem(todoListId, listItem);
         } catch (err) {
             return Q.reject(err);
+        }
+
+        const key = `${TODOLISTS_CACHE_KEY_PREFIX}:${userId}:${todoListId}`;
+        try {
+            await this._updateTodoCache(key, listItem);
+        } catch (err) {
+            console.error("TodoListLogic.addTodoListItem: Failed setting cache for key", key);
         }
 
         console.log("TodoListLogic.updateTodoListItem: Successfully added todo list item", todoListId);
@@ -132,9 +156,29 @@ export class TodoListLogic {
             return Q.reject(err);
         }
 
+        const key = `${TODOLISTS_CACHE_KEY_PREFIX}:${userId}:${todoListId}`;
+        try {
+            await this._todoListCacheManager.deleteHashField(key, todoListItemId);
+        } catch (err) {
+            console.error("TodoListLogic.addTodoListItem: Failed setting cache for key", key);
+        }
+
         console.log("TodoListLogic.deleteTodoListItem: Successfully deleted todo list item", todoListItemId);
         return Q.resolve(undefined);
 
+    }
+
+    private _updateTodoCache(key: string, todoListItem: TodoListItem): Q.Promise<void> {
+        if (!key || !todoListItem) {
+            return Q.reject(new Error(`received invalid list id: ${key} or list item: ${todoListItem}`));
+        }
+
+        return this._todoListCacheManager.set(key, todoListItem).catch((err: Error) => {
+            console.error("TodoListLogic.addTodoListItem: Failed setting cache for key", key, "on", err, ", invalidating cache...");
+            return this._todoListCacheManager.delete(key);
+        }).catch((err: Error) => {
+            console.error("TodoListLogic.addTodoListItem: [FATAL] Failed to clear cache key", key, "on", err);
+        })
     }
 
 
