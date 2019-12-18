@@ -52,7 +52,7 @@ export class TodoListLogic {
         } catch (err) {
             return Q.reject(err);
         }
-
+        // TODO: implement hmset of hashes https://medium.com/@ashok.tankala/redis-hashmaps-or-hashes-example-in-node-js-54ff64229cf8
         const key = `${TODOLISTS_CACHE_KEY_PREFIX}:${todoListInput.userId}`
         try {
             this._cacheManager.set(key, )
