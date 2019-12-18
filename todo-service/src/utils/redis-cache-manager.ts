@@ -5,7 +5,7 @@ import Q = require("q");
 import {ErrorWithCode} from "../errors/error-with-code";
 
 
-export class RedisFacade implements CacheManager {
+export class RedisCacheManager implements CacheManager {
 
     private _redisClient!: RedisClient;
 

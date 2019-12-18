@@ -7,7 +7,7 @@ import {TodoListMongoDal} from "./todo-list/todo-list-mongo-dal";
 import {TodoListLogic} from "./todo-list/todo-list-logic";
 import {TodoListCacheManager} from "./todo-list/todo-list-cache-manager";
 import {TODO_LIST_DB_NAME} from "../dist/types/todo-list-types";
-import {RedisFacade} from "./utils/redis-facade";
+import {RedisCacheManager} from "./utils/redis-cache-manager";
 import {UsersMongoDal} from "./users-management/users-mongo-dal";
 import {UsersLogic} from "./users-management/users-logic";
 import {UsersRestService} from "./users-management/users-rest-service";
@@ -23,7 +23,7 @@ restServer.use(Restify.plugins.queryParser());
 
 // TODO: catch sigint/sigterm to end gracefully mongo/redis connections
 
-const requestCacheManager: CacheManager = new RedisFacade();
+const requestCacheManager: CacheManager = new RedisCacheManager();
 const middlewares: Middlewares = {
     "cacheMiddleware": cacheMiddleware.bind(null, requestCacheManager)
 };
