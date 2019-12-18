@@ -1,4 +1,5 @@
 import {
+    CacheManager,
     ERROR_CODES, MongoDocument,
     TODO_LIST_DB_NAME,
     TodoList,
@@ -7,7 +8,6 @@ import {
 } from "../types/todo-list-types";
 import {Collection, MongoClient, ObjectId} from "mongodb";
 import Q = require("q");
-import {TodoListCacheManager} from "./todo-list-cache-manager";
 import {ErrorWithCode} from "../errors/error-with-code";
 import _ = require("lodash");
 
@@ -17,7 +17,7 @@ export class TodoListMongoDal implements TodoListDal {
 
     private _todoListCollection!: Collection;
 
-    constructor(private _cacheManager: TodoListCacheManager) {}
+    constructor(private _cacheManager: CacheManager) {}
 
     public async init(mongoClient: MongoClient): Promise<void> {
         if (!mongoClient.isConnected()) {
@@ -66,7 +66,7 @@ export class TodoListMongoDal implements TodoListDal {
         }
 
         const todoList = Object.assign<TodoListInput, MongoDocument>(todoListInput, {_id: result.insertedId as ObjectId});
-
+        // TODO: implement cache here with hmset in order to get access later when item changes and remove middle ware
         console.debug(`${this.constructor.name}.addTodoList: Successfully added todo list '${todoList.title} with id '${todoList._id.toHexString()}'`);
         return todoList as TodoList;
     }

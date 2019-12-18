@@ -1,7 +1,7 @@
 import Restify = require("restify");
 import {TodoListRestService} from "./todo-list/todo-list-rest-service";
 import Q = require("q");
-import {TodoListDal, UsersDal} from "./types/todo-list-types";
+import {CacheManager, Middlewares, TodoListDal, UsersDal} from "./types/todo-list-types";
 import {MongoClient} from "mongodb";
 import {TodoListMongoDal} from "./todo-list/todo-list-mongo-dal";
 import {TodoListLogic} from "./todo-list/todo-list-logic";
@@ -11,6 +11,7 @@ import {RedisFacade} from "./utils/redis-facade";
 import {UsersMongoDal} from "./users-management/users-mongo-dal";
 import {UsersLogic} from "./users-management/users-logic";
 import {UsersRestService} from "./users-management/users-rest-service";
+import {cacheMiddleware} from "./middlewares/cache-middleware";
 
 const restServerPort = process.env.TODO_SERVICE_PORT || "8686";
 const mongodbUrl = process.env.MONGODB_URL || `mongodb://127.0.0.1:27017/${TODO_LIST_DB_NAME}`;
@@ -20,22 +21,24 @@ const restServer = Restify.createServer();
 restServer.use(Restify.plugins.bodyParser());
 restServer.use(Restify.plugins.queryParser());
 
-
 // TODO: catch sigint/sigterm to end gracefully mongo/redis connections
+
+const requestCacheManager: CacheManager = new RedisFacade();
+const middlewares: Middlewares = {
+    "cacheMiddleware": cacheMiddleware.bind(null, requestCacheManager)
+};
 
 Q.when().then( () => {
     return Q.all([
         Q.nfcall<MongoClient>(MongoClient.connect.bind(MongoClient), mongodbUrl, {useUnifiedTopology: true}),
-        RedisFacade.connect(redisUrl)
+        requestCacheManager.connect(redisUrl)
     ]);
 }).spread((mongoClient, redisClient) => {
 
-    const todoListCacheManager: TodoListCacheManager = new TodoListCacheManager(redisClient);
-
-    const todoListMongoDal: TodoListDal = new TodoListMongoDal(todoListCacheManager);
+    const todoListMongoDal: TodoListDal = new TodoListMongoDal();
     const todoListLogic = new TodoListLogic(todoListMongoDal);
     const todoRestService = new TodoListRestService(todoListLogic);
-    todoRestService.registerRoutes(restServer);
+    todoRestService.registerRoutes(restServer, middlewares);
 
     const usersMongoDal: UsersDal = new UsersMongoDal();
     const usersLogic = new UsersLogic(usersMongoDal);

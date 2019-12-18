@@ -1,12 +1,12 @@
 import {ObjectId, MongoClient} from "mongodb";
-import {Server} from "restify";
+import {RequestHandler, Server} from "restify";
 
 export const TODO_LIST_DB_NAME: string = "todo";
 
 export const JWT_SECRET: string = "!@!@!super-secret-shhh!@!@!@";
 
 export interface Routable {
-    registerRoutes(restServer: Server): void
+    registerRoutes(restServer: Server, middlewares?: Middlewares): void
 }
 
 export interface MongoDbCollectionInit {
@@ -25,6 +25,12 @@ export interface TodoListDal extends MongoDbCollectionInit {
 export interface UsersDal extends MongoDbCollectionInit {
    addUser(user: UserInput): Promise<User>;
    getUser(userQuery: UserQuery): Promise<User>;
+}
+
+export interface CacheManager {
+    connect(url: string): Promise<void>;
+    get(key: string): Promise<any>;
+    set(key: string, content: any, ttl?: number): Promise<void>;
 }
 
 export interface MongoDocument {
@@ -87,5 +93,9 @@ export enum ERROR_CODES {
 
     THIRD_PARTY_ERROR = "THIRD_PARTY_ERROR",
 
-    DB_ERROR = "DB_ERROR"
+    DB_ERROR = "DB_ERROR",
+    REDIS_ERROR = "REDIS_ERROR"
 }
+
+type MiddlewareTypes = "cacheMiddleware";
+export type Middlewares = { [K in MiddlewareTypes]: () => RequestHandler };

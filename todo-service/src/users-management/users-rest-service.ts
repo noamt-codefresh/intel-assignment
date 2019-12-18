@@ -1,5 +1,5 @@
 import {JWT_SECRET, JwtContext, Routable, User} from "../types/todo-list-types";
-import {Next, Request, Response, Server} from "restify";
+import {Next, Request, RequestHandler, Response, Server} from "restify";
 import {UsersLogic} from "./users-logic";
 import {ErrorUtils} from "../utils/error-utils";
 const rjwt = require('restify-jwt-community');
@@ -9,7 +9,7 @@ export class UsersRestService implements Routable {
 
     constructor(private _usersLogic: UsersLogic) {}
 
-    registerRoutes(restServer: Server): void {
+    registerRoutes(restServer: Server, middlewares?: Map<string, RequestHandler>): void {
         restServer.use(rjwt({secret: JWT_SECRET}).unless({
             path: ["/users/auth", "/users/register"]
         }));
