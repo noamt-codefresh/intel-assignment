@@ -1,7 +1,7 @@
 
-import {Next, Request, RequestHandler, Response, Server} from "restify";
+import {Next, Request, Response, Server} from "restify";
 import {TodoListLogic} from "./todo-list-logic";
-import {Middlewares, Routable, TodoList, TodoListItem, TodoListItemInput} from "../types/todo-list-types";
+import {Routable, TodoList, TodoListItem, TodoListItemInput} from "../types/todo-list-types";
 import {ErrorUtils} from "../utils/error-utils";
 import {TodoListInput} from "../../dist/types/todo-list-types";
 import _ = require("lodash");
@@ -11,9 +11,8 @@ export class TodoListRestService implements Routable {
 
     constructor(private _todoListLogic: TodoListLogic) {}
 
-    public registerRoutes(restServer: Server, middlewares: Middlewares): void {
-        const {cacheMiddleware} = middlewares;
-        restServer.get("/todo/lists", cacheMiddleware() ,this._getTodoLists.bind(this));
+    public registerRoutes(restServer: Server): void {
+        restServer.get("/todo/lists", this._getTodoLists.bind(this));
         restServer.post("/todo/lists", this._addTodoList.bind(this));
 
         restServer.post("/todo/lists/:listId/item", this._addTodoListItem.bind(this));
@@ -56,9 +55,10 @@ export class TodoListRestService implements Routable {
     private async _addTodoListItem(req: Request, res: Response, next: Next): Promise<void> {
         let error = null;
         try {
+            const {userId} = (req as any)?.user;
             const todoListId: string = req.params?.listId;
             const todoListItemInput: TodoListItemInput = req.body;
-            const todoListItem: TodoListItem = await this._todoListLogic.addTodoListItem(todoListId, todoListItemInput);
+            const todoListItem: TodoListItem = await this._todoListLogic.addTodoListItem(todoListId, todoListItemInput, userId);
             res.send(201, todoListItem);
         } catch (e) {
             error = e;
@@ -73,10 +73,11 @@ export class TodoListRestService implements Routable {
     private async _updateTodoListItem(req: Request, res: Response, next: Next): Promise<void> {
         let error = null;
         try {
+            const {userId} = (req as any)?.user;
             const todoListId: string = req.params?.listId;
             const todoListItemId: string = req.params?.itemId;
             const todoListItem: TodoListItem = _.assign(req.body, {_id: todoListItemId});
-            await this._todoListLogic.updateTodoListItem(todoListId, todoListItem);
+            await this._todoListLogic.updateTodoListItem(todoListId, todoListItem, userId);
             res.send(204)
         } catch (e) {
             error = e;
@@ -92,9 +93,10 @@ export class TodoListRestService implements Routable {
     private async _deleteTodoListItem(req: Request, res: Response, next: Next): Promise<void> {
         let error = null;
         try {
+            const {userId} = (req as any)?.user;
             const todoListId: string = req.params?.listId;
             const todoListItemId: string = req.params?.itemId;
-            await this._todoListLogic.deleteTodoListItem(todoListId, todoListItemId);
+            await this._todoListLogic.deleteTodoListItem(todoListId, todoListItemId, userId);
             res.send(204)
         } catch (e) {
             error = e;

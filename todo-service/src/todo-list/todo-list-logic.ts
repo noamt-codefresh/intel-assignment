@@ -1,4 +1,5 @@
 import {
+    CacheManager,
     ERROR_CODES,
     TodoList,
     TodoListDal,
@@ -12,10 +13,12 @@ import Q = require("q");
 import _ = require("lodash");
 import {ObjectId} from "bson";
 
+const TODOLISTS_CACHE_KEY_PREFIX: string = "todo:lists";
+const CACHE_TTL: number = 60 * 10;
 
 export class TodoListLogic {
 
-    constructor(private _todoListDal: TodoListDal) {}
+    constructor(private _todoListDal: TodoListDal, private _cacheManager: CacheManager) {}
 
     public async getTodoLists(userId: string): Promise<TodoList[]> {
         if(!userId) {
@@ -50,12 +53,17 @@ export class TodoListLogic {
             return Q.reject(err);
         }
 
+        const key = `${TODOLISTS_CACHE_KEY_PREFIX}:${todoListInput.userId}`
+        try {
+            this._cacheManager.set(key, )
+        }
+
         console.log("TodoListLogic.addTodoList: Successfully added todo list", todoListInput.title, "for user", todoListInput.userId);
         return todoList;
 
     }
 
-    public async addTodoListItem(todoListId: string, todoListItemInput: TodoListItemInput): Promise<TodoListItem> {
+    public async addTodoListItem(todoListId: string, todoListItemInput: TodoListItemInput, userId: string): Promise<TodoListItem> {
         if(!TodoListTypeGuard.isTodoListItemInput(todoListItemInput)) {
             const error = new ErrorWithCode(`received invalid todo list item input: '${ JSON.stringify(todoListItemInput) }'`,  ERROR_CODES.USER_INVALID_INPUT);
             return Q.reject(error);
@@ -75,7 +83,7 @@ export class TodoListLogic {
 
     }
 
-    public async updateTodoListItem(todoListId: string, listItem: TodoListItem): Promise<void> {
+    public async updateTodoListItem(todoListId: string, listItem: TodoListItem, userId: string): Promise<void> {
         if(!TodoListTypeGuard.isTodoListItem(listItem)) {
             const error = new ErrorWithCode(`received invalid todo list item input: '${ JSON.stringify(listItem) }'`,  ERROR_CODES.USER_INVALID_INPUT);
             return Q.reject(error);
@@ -93,7 +101,7 @@ export class TodoListLogic {
         return Q.resolve(undefined);
     }
 
-    public async deleteTodoListItem(todoListId: string, todoListItemId: string): Promise<void> {
+    public async deleteTodoListItem(todoListId: string, todoListItemId: string, userId: string): Promise<void> {
         if (!todoListId || !todoListItemId) {
            return Q.reject(new ErrorWithCode(`received invalid list id: ${todoListId} or list item: ${todoListItemId}`, ERROR_CODES.USER_INVALID_INPUT));
         }

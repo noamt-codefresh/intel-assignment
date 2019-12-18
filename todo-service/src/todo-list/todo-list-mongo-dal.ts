@@ -17,8 +17,6 @@ export class TodoListMongoDal implements TodoListDal {
 
     private _todoListCollection!: Collection;
 
-    constructor(private _cacheManager: CacheManager) {}
-
     public async init(mongoClient: MongoClient): Promise<void> {
         if (!mongoClient.isConnected()) {
             return Q.reject<void>(new Error("failed to initialize UsersMongoDal, no available mongo connection"));

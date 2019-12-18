@@ -6,7 +6,7 @@ export const TODO_LIST_DB_NAME: string = "todo";
 export const JWT_SECRET: string = "!@!@!super-secret-shhh!@!@!@";
 
 export interface Routable {
-    registerRoutes(restServer: Server, middlewares?: Middlewares): void
+    registerRoutes(restServer: Server): void
 }
 
 export interface MongoDbCollectionInit {
