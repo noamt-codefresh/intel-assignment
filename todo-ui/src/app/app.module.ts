@@ -10,12 +10,14 @@ import {HttpClientModule} from "@angular/common/http";
 import {JwtModule} from "@auth0/angular-jwt";
 import {LoginComponent} from "./_component/login/login.component";
 import {TodoListComponent} from "./_component/todo-list/todo-list.component";
+import { RegisterComponent } from './_component/register/register.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    TodoListComponent
+    TodoListComponent,
+    RegisterComponent
   ],
   imports: [
     BrowserModule,

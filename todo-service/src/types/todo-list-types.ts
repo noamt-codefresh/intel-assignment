@@ -86,6 +86,11 @@ export interface JwtContext {
     iat: string;
     exp: number;
     token: string;
+    userProfile: UserProfile;
+}
+
+export interface UserProfile {
+    name: User['name'];
 }
 
 export enum ERROR_CODES {

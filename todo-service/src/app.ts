@@ -10,6 +10,7 @@ import {RedisItemsCacheManager} from "./todo-list/redis-items-cache-manager";
 import {UsersMongoDal} from "./users-management/users-mongo-dal";
 import {UsersLogic} from "./users-management/users-logic";
 import {UsersRestService} from "./users-management/users-rest-service";
+const corsMiddleware = require('restify-cors-middleware');
 
 const redisItemsCacheManager: TodoListCacheManager = new RedisItemsCacheManager();
 
@@ -20,6 +21,16 @@ const redisUrl = process.env.REDIS_URL || "redis://127.0.0.1:6379";
 const restServer = Restify.createServer();
 restServer.use(Restify.plugins.bodyParser());
 restServer.use(Restify.plugins.queryParser());
+
+
+const cors = corsMiddleware({
+    preflightMaxAge: 5, //Optional
+    origins: ['*']
+});
+
+restServer.pre(cors.preflight);
+restServer.use(cors.actual);
+
 
 // TODO: catch sigint/sigterm to end gracefully mongo/redis connections
 

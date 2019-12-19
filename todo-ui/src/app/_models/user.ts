@@ -1,10 +1,16 @@
 
 
-
 export interface LoginResponse {
-  access_token: string;
-  data: any;
+  iat: string;
+  exp: number;
+  token: string;
+  userProfile: UserProfile;
+}
+
+export interface UserProfile {
   name: string;
-  status: string;
-  message: string;
+}
+
+export interface RegisterResponse {
+  name: string;
 }
