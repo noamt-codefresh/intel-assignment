@@ -49,7 +49,7 @@ export class AuthService {
   // After login save token and other values(if any) in localStorage
   setUser(resp: LoginResponse) {
     const {userProfile} = resp;
-    localStorage.setItem('name', userProfile.name);
+    localStorage.setItem('userProfile', JSON.stringify(userProfile));
     localStorage.setItem('access_token', resp.token);
     this.router.navigate(['/todolist']);
   }

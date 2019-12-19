@@ -4,20 +4,22 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
-
 import {FormsModule} from "@angular/forms";
-import {HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {JwtModule} from "@auth0/angular-jwt";
 import {LoginComponent} from "./_component/login/login.component";
 import {TodoListComponent} from "./_component/todo-list/todo-list.component";
 import { RegisterComponent } from './_component/register/register.component';
+import {JwtInterceptor} from "./_helpers/jwt.interceptor";
+import { TodoListItemsComponent } from './_component/todo-list-items/todo-list-items.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     TodoListComponent,
-    RegisterComponent
+    RegisterComponent,
+    TodoListItemsComponent
   ],
   imports: [
     BrowserModule,
@@ -30,11 +32,13 @@ import { RegisterComponent } from './_component/register/register.component';
           return localStorage.getItem('access_token');
         },
         whitelistedDomains: ['localhost'],
-        blacklistedRoutes: ['localhost/auth/login']
+        blacklistedRoutes: ['localhost/users/auth/login']
       }
     })
   ],
-  providers: [],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

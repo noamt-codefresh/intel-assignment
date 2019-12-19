@@ -25,7 +25,8 @@ restServer.use(Restify.plugins.queryParser());
 
 const cors = corsMiddleware({
     preflightMaxAge: 5, //Optional
-    origins: ['*']
+    origins: ['*'],
+    allowHeaders: ['Authorization'],
 });
 
 restServer.pre(cors.preflight);
