@@ -11,11 +11,11 @@ export class UsersRestService implements Routable {
 
     registerRoutes(restServer: Server, middlewares?: Map<string, RequestHandler>): void {
         restServer.use(rjwt({secret: JWT_SECRET}).unless({
-            path: ["/users/auth", "/users/register"]
+            path: ["/users/auth/login", "/users/register"]
         }));
 
         restServer.post("/users/register", this._registerUser.bind(this));
-        restServer.post("/users/auth", this._authenticateUser.bind(this));
+        restServer.post("/users/auth/login", this._authenticateUser.bind(this));
     }
 
     private async _registerUser(req: Request, res: Response, next: Next): Promise<void> {
