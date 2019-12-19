@@ -1,17 +1,17 @@
 import Restify = require("restify");
 import {TodoListRestService} from "./todo-list/todo-list-rest-service";
 import Q = require("q");
-import {CacheManager, TodoListDal, UsersDal} from "./types/todo-list-types";
+import {TODO_LIST_DB_NAME, TodoListCacheManager, TodoListDal, UsersDal} from "./types/todo-list-types";
 import {MongoClient} from "mongodb";
 import {TodoListMongoDal} from "./todo-list/todo-list-mongo-dal";
 import {TodoListLogic} from "./todo-list/todo-list-logic";
-import {TODO_LIST_DB_NAME} from "../dist/types/todo-list-types";
-import {TodoListCacheManager} from "./todo-list/todo-list-cache-manager";
+
+import {RedisItemsCacheManager} from "./todo-list/redis-items-cache-manager";
 import {UsersMongoDal} from "./users-management/users-mongo-dal";
 import {UsersLogic} from "./users-management/users-logic";
 import {UsersRestService} from "./users-management/users-rest-service";
 
-const redisCacheManager: CacheManager = new TodoListCacheManager();
+const redisItemsCacheManager: TodoListCacheManager = new RedisItemsCacheManager();
 
 const restServerPort = process.env.TODO_SERVICE_PORT || "8686";
 const mongodbUrl = process.env.MONGODB_URL || `mongodb://127.0.0.1:27017/${TODO_LIST_DB_NAME}`;
@@ -26,12 +26,12 @@ restServer.use(Restify.plugins.queryParser());
 Q.when().then( () => {
     return Q.all([
         Q.nfcall<MongoClient>(MongoClient.connect.bind(MongoClient), mongodbUrl, {useUnifiedTopology: true}),
-        redisCacheManager.connect(redisUrl)
+        redisItemsCacheManager.connect(redisUrl)
     ]);
 }).spread((mongoClient, redisClient) => {
 
     const todoListMongoDal: TodoListDal = new TodoListMongoDal();
-    const todoListLogic = new TodoListLogic(todoListMongoDal, redisCacheManager);
+    const todoListLogic = new TodoListLogic(todoListMongoDal, redisItemsCacheManager);
     const todoRestService = new TodoListRestService(todoListLogic);
     todoRestService.registerRoutes(restServer);
 

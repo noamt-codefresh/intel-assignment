@@ -1,5 +1,5 @@
 import {ObjectId, MongoClient} from "mongodb";
-import {RequestHandler, Server} from "restify";
+import {Server} from "restify";
 
 export const TODO_LIST_DB_NAME: string = "todo";
 
@@ -28,10 +28,16 @@ export interface UsersDal extends MongoDbCollectionInit {
    getUser(userQuery: UserQuery): Promise<User>;
 }
 
-export interface CacheManager<T> {
+export interface RedisCacheManager {
     connect(url: string): Promise<void>;
-    get<T>(key: string): Promise<T>;
-    set(key: string, content: any, ttl?: number): Promise<void>;
+    deleteHashField(key: string, field: string): Promise<void>
+}
+
+export interface TodoListCacheManager extends RedisCacheManager {
+    create(key: string, todoListItems: TodoListItem[], ttl?: number): Promise<void>;
+    get(key: string): Promise<TodoListItem[]>;
+    update(key: string, todoListItem: TodoListItem, ttl?: number): Promise<void>;
+    delete(key: string): Promise<void>;
 }
 
 export interface MongoDocument {
@@ -97,6 +103,3 @@ export enum ERROR_CODES {
     DB_ERROR = "DB_ERROR",
     REDIS_ERROR = "REDIS_ERROR"
 }
-
-type MiddlewareTypes = "cacheMiddleware";
-export type Middlewares = { [K in MiddlewareTypes]: () => RequestHandler };

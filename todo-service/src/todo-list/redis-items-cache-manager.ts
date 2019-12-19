@@ -1,12 +1,13 @@
 import redis = require("redis");
 import {RedisClient} from "redis";
-import {CacheManager, ERROR_CODES, TodoListItem} from "../types/todo-list-types";
+import {ERROR_CODES, TodoListCacheManager, TodoListItem} from "../types/todo-list-types";
 import Q = require("q");
 import {ErrorWithCode} from "../errors/error-with-code";
 import _ = require("lodash");
 
+const CACHE_TTL: number = 60 * 10;
 
-export class TodoListCacheManager implements CacheManager<TodoListItem> {
+export class RedisItemsCacheManager implements TodoListCacheManager {
 
     private _redisClient!: RedisClient;
 
@@ -21,57 +22,9 @@ export class TodoListCacheManager implements CacheManager<TodoListItem> {
         });
     }
 
-    public async get(key: string): Promise<TodoListItem[]> {
-       if (!key) {
-           return Q.reject(new Error("received undefined cache key"));
-       }
-
-       let todolistItems: TodoListItem[];
-       try {
-           const result: any = await Q.nfcall(this._redisClient.hgetall.bind(this._redisClient), key);
-           if (result === null) {
-               return result;
-           }
-
-           todolistItems = _.reduce(result, (currentItems: TodoListItem[], item: string) => {
-               currentItems.push(JSON.parse(item));
-               return currentItems;
-           }, []);
-
-       } catch (err) {
-          return Q.reject(new ErrorWithCode(`failed retrieving cache with key: ${key} on: ${err}`, ERROR_CODES.REDIS_ERROR));
-       }
-
-       return todolistItems;
-    }
-
-    public async set(key: string, todoListItem: TodoListItem, ttl?: number): Promise<void> {
-        if (!key || !todoListItem) {
-            return Q.reject(new Error(`received invalid args: key '${key}' / todoListItem '${todoListItem}'`));
-        }
-
-        let result;
-        try {
-            const isKeyExists = await Q.nfcall(this._redisClient.exists.bind(this._redisClient), key);
-            if (!isKeyExists){
-                return Q.resolve(undefined);
-            }
-            result = await Q.nfcall(this._redisClient.hset.bind(this._redisClient), key, todoListItem._id.toHexString(), JSON.stringify(todoListItem));
-        } catch (err) {
-            return Q.reject(new ErrorWithCode(`failed setting cache for key: ${key} on: ${err}`, ERROR_CODES.REDIS_ERROR));
-        }
-
-        if (result !== 1){
-            return Q.reject(new ErrorWithCode(`failed setting cache for key: ${key}, received result: ${JSON.stringify(result)}`, ERROR_CODES.REDIS_ERROR));
-        }
-
-        return Q.resolve(undefined);
-
-    }
-
-    public async setMulti(key: string, todoListItems: TodoListItem[], ttl: number = 10 * 60) {
+    public async create(key: string, todoListItems: TodoListItem[], ttl: number = CACHE_TTL): Promise<void> {
         if (!key || !todoListItems) {
-            return Q.reject(new Error(`received invalid args: key '${key}' / todoListItem '${todoListItem}'`));
+            return Q.reject(new Error(`received invalid args: key '${key}' / todoListItem '${todoListItems}'`));
         }
 
         const todoListItemsObj = _.reduce(todoListItems, (current: any, item) => {
@@ -98,7 +51,62 @@ export class TodoListCacheManager implements CacheManager<TodoListItem> {
         return Q.resolve(undefined);
     }
 
-    public async delete<TodoList>(key: string, todoListItemId: string): Promise<void> {
+    public async get(key: string): Promise<TodoListItem[]> {
+       if (!key) {
+           return Q.reject(new Error("received undefined cache key"));
+       }
+
+       let todolistItems: TodoListItem[];
+       try {
+           const result: any = await Q.nfcall(this._redisClient.hgetall.bind(this._redisClient), key);
+           if (result === null) {
+               return result;
+           }
+
+           todolistItems = _.reduce(result, (currentItems: TodoListItem[], item: string) => {
+               currentItems.push(JSON.parse(item));
+               return currentItems;
+           }, []);
+
+       } catch (err) {
+          return Q.reject(new ErrorWithCode(`failed retrieving cache with key: ${key} on: ${err}`, ERROR_CODES.REDIS_ERROR));
+       }
+
+       return todolistItems;
+    }
+
+    public async update(key: string, todoListItem: TodoListItem, ttl: number = CACHE_TTL): Promise<void> {
+        if (!key || !todoListItem) {
+            return Q.reject(new Error(`received invalid args: key '${key}' / todoListItem '${todoListItem}'`));
+        }
+
+        let result: any[];
+        try {
+            const isKeyExists = await Q.nfcall(this._redisClient.exists.bind(this._redisClient), key);
+            if (!isKeyExists){
+                return Q.resolve(undefined);
+            }
+
+            const commands = [
+                ["HSET", key, todoListItem._id.toHexString(), JSON.stringify(todoListItem)],
+                ["EXPIRE", key, ttl],
+            ];
+
+            const multi = this._redisClient.multi(commands);
+            result = await Q.nfcall(multi.exec.bind(multi));
+        } catch (err) {
+            return Q.reject(new ErrorWithCode(`failed setting cache for key: ${key} on: ${err}`, ERROR_CODES.REDIS_ERROR));
+        }
+
+        if (result[0] !== 1){
+            return Q.reject(new ErrorWithCode(`failed setting cache for key: ${key}, received result: ${JSON.stringify(result)}`, ERROR_CODES.REDIS_ERROR));
+        }
+
+        return Q.resolve(undefined);
+
+    }
+
+    public async delete<TodoList>(key: string): Promise<void> {
         if (!key) {
             return Q.reject(new Error(`received invalid args: key '${key}'`));
         }

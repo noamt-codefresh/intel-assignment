@@ -1,7 +1,6 @@
 import {
-    CacheManager,
     ERROR_CODES,
-    TodoList,
+    TodoList, TodoListCacheManager,
     TodoListDal,
     TodoListInput,
     TodoListItem,
@@ -11,14 +10,12 @@ import {TodoListTypeGuard} from "../types/todo-list-type-guard";
 import {ErrorWithCode} from "../errors/error-with-code";
 import Q = require("q");
 import _ = require("lodash");
-import {ObjectId} from "bson";
 
-const TODOLISTS_CACHE_KEY_PREFIX: string = "todo:lists";
-const CACHE_TTL: number = 60 * 10;
+const TODO_LISTS_CACHE_KEY_PREFIX: string = "todo:lists";
 
 export class TodoListLogic {
 
-    constructor(private _todoListDal: TodoListDal, private _todoListCacheManager: CacheManager) {}
+    constructor(private _todoListDal: TodoListDal, private _todoListCacheManager: TodoListCacheManager) {}
 
     public async getTodoLists(userId: string): Promise<TodoList[]> {
         if(!userId) {
@@ -65,7 +62,7 @@ export class TodoListLogic {
 
         console.log("TodoListLogic.getTodoListItems: Retrieving todo list items for list", todoListId);
 
-        const key = `${TODOLISTS_CACHE_KEY_PREFIX}:${userId}:${todoListId}`;
+        const key = `${TODO_LISTS_CACHE_KEY_PREFIX}:${userId}:${todoListId}`;
         let todoListItems: TodoListItem[];
 
         try {
@@ -84,7 +81,8 @@ export class TodoListLogic {
         }
 
         try {
-            this._todoListCacheManager.setMulti(key, todoListItems);
+            console.debug("TodoListLogic.getTodoListItems: creating cache for key", key);
+            this._todoListCacheManager.create(key, todoListItems);
         } catch (err) {
             console.error("TodoListLogic.getTodoListItems: Failed setting cache for key", key, "on", err);
         }
@@ -109,13 +107,15 @@ export class TodoListLogic {
         }
 
         console.log("TodoListLogic.addTodoListItem: Successfully added todo list item", todoListItemInput.name);
-        const key = `${TODOLISTS_CACHE_KEY_PREFIX}:${userId}:${todoListId}`;
+        const key = `${TODO_LISTS_CACHE_KEY_PREFIX}:${userId}:${todoListId}`;
 
         try {
             await this._updateTodoCache(key, todoListItem);
         } catch (err) {
             console.error("TodoListLogic.addTodoListItem: Failed setting cache for key", key);
         }
+
+        return todoListItem;
     }
 
     public async updateTodoListItem(todoListId: string, listItem: TodoListItem, userId: string): Promise<void> {
@@ -132,7 +132,7 @@ export class TodoListLogic {
             return Q.reject(err);
         }
 
-        const key = `${TODOLISTS_CACHE_KEY_PREFIX}:${userId}:${todoListId}`;
+        const key = `${TODO_LISTS_CACHE_KEY_PREFIX}:${userId}:${todoListId}`;
         try {
             await this._updateTodoCache(key, listItem);
         } catch (err) {
@@ -156,7 +156,7 @@ export class TodoListLogic {
             return Q.reject(err);
         }
 
-        const key = `${TODOLISTS_CACHE_KEY_PREFIX}:${userId}:${todoListId}`;
+        const key = `${TODO_LISTS_CACHE_KEY_PREFIX}:${userId}:${todoListId}`;
         try {
             await this._todoListCacheManager.deleteHashField(key, todoListItemId);
         } catch (err) {
@@ -173,7 +173,7 @@ export class TodoListLogic {
             return Q.reject(new Error(`received invalid list id: ${key} or list item: ${todoListItem}`));
         }
 
-        return this._todoListCacheManager.set(key, todoListItem).catch((err: Error) => {
+        return this._todoListCacheManager.update(key, todoListItem).catch((err: Error) => {
             console.error("TodoListLogic.addTodoListItem: Failed setting cache for key", key, "on", err, ", invalidating cache...");
             return this._todoListCacheManager.delete(key);
         }).catch((err: Error) => {

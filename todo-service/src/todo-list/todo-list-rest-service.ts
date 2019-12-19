@@ -1,9 +1,8 @@
 
 import {Next, Request, Response, Server} from "restify";
 import {TodoListLogic} from "./todo-list-logic";
-import {Routable, TodoList, TodoListItem, TodoListItemInput} from "../types/todo-list-types";
+import {Routable, TodoList, TodoListInput, TodoListItem, TodoListItemInput} from "../types/todo-list-types";
 import {ErrorUtils} from "../utils/error-utils";
-import {TodoListInput} from "../../dist/types/todo-list-types";
 import _ = require("lodash");
 
 
@@ -99,7 +98,7 @@ export class TodoListRestService implements Routable {
             res.send(204)
         } catch (e) {
             error = e;
-            console.error("UsersRestService._updateTodoListItem: Failed to update todo list on", error.stack);
+            console.error("UsersRestService._updateTodoListItem: Failed to set todo list on", error.stack);
             const {message, code, httpStatus} = ErrorUtils.httpErrorHandler(error);
             res.send(httpStatus, {message, code});
         } finally {
