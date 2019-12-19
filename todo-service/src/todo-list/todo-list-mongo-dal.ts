@@ -128,8 +128,8 @@ export class TodoListMongoDal implements TodoListDal {
             return Q.reject(new ErrorWithCode(`failed while trying to insert todo list item: '${todoListItem._id}' on: ${err}`, ERROR_CODES.DB_ERROR));
         }
 
-        const {modifiedCount} = result;
-        if (!modifiedCount) {
+        const {matchedCount} = result;
+        if (!matchedCount) {
             return Q.reject(new ErrorWithCode(`failed to update item: ${todoListItem._id}, cannot find list: ${todoListId} or item`, ERROR_CODES.TODO_LIST_DOESNT_EXIST))
         }
 

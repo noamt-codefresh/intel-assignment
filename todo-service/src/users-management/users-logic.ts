@@ -75,7 +75,7 @@ export class UsersLogic {
         });
 
         // retrieve issue and expiration times
-        let { iat, exp } = jwt.decode(token);
+        let { iat, exp } = jwt.decode(token) as any;
         return { iat, exp, token };
     }
 }

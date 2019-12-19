@@ -168,9 +168,9 @@ export class TodoListLogic {
 
     }
 
-    private _updateTodoCache(key: string, todoListItem: TodoListItem): Q.Promise<void> {
+    private _updateTodoCache(key: string, todoListItem: TodoListItem): Promise<void> {
         if (!key || !todoListItem) {
-            return Q.reject(new Error(`received invalid list id: ${key} or list item: ${todoListItem}`));
+            return Promise.reject(new Error(`received invalid list id: ${key} or list item: ${todoListItem}`));
         }
 
         return this._todoListCacheManager.update(key, todoListItem).catch((err: Error) => {
