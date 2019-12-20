@@ -1,25 +1,36 @@
 
-<h1>{{getUserName()}}'s Todo List</h1>
+<div class="header-container">
+  <div>
+    <h1>{{getUserName()}}'s Todo List</h1>
+  </div>
+ <div>
+   <a routerLink="/login" class="btn btn-info">Logout</a>
 
-<div>
-  <label>New Todo List:
-    <input [(ngModel)]="newTodoListName" placeholder="Todo list name"/>
-  </label>
-  <button class="btn btn-primary" (click)="createTodoList(newTodoListName)">Create</button>
+ </div>
 </div>
-<div>
-  <div class="list-group">
-    <button *ngFor="let todoList of todoLists; let i = index"
-            type="button" class="list-group-item list-group-item-action"
-            [ngClass]="{'active': isActive(todoList, i)}"
-            (click)="onListSelect(todoList)">
-      {{todoList.title}}
-    </button>
+
+
+<div class="container">
+  <div class="sub-container">
+    <label>New Todo List:
+      <input [(ngModel)]="newTodoListName" placeholder="Todo list name"/>
+    </label>
+    <button class="btn btn-primary" (click)="createTodoList(newTodoListName)">Create</button>
+    <div class="list-group">
+      <button *ngFor="let todoList of todoLists; let i = index"
+              type="button" class="list-group-item list-group-item-action"
+              [ngClass]="{'active': isActive(todoList, i)}"
+              (click)="onListSelect(todoList)">
+        {{todoList.title}}
+      </button>
+    </div>
+  </div>
+
+  <div class="sub-container" *ngIf="this.currentTodoList">
+    <app-todo-list-items [todoList]="currentTodoList"></app-todo-list-items>
   </div>
 </div>
 
-<div *ngIf="this.currentTodoList">
-  <app-todo-list-items [todoList]="currentTodoList"></app-todo-list-items>
-</div>
+
 
 

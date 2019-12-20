@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, Input, NgZone, OnInit} from '@angular/core';
+import {AfterViewInit, Component, Input, NgZone, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {TodoList, TodoListItem} from "../../_models/todo-list";
 import {TodoListService} from "../../_services/todo-list.service";
 
@@ -7,7 +7,7 @@ import {TodoListService} from "../../_services/todo-list.service";
   templateUrl: './todo-list-items.component.html',
   styleUrls: ['./todo-list-items.component.css']
 })
-export class TodoListItemsComponent implements OnInit, AfterViewInit {
+export class TodoListItemsComponent implements OnInit, AfterViewInit, OnChanges {
 
   items: TodoListItem[];
   @Input() todoList: TodoList;
@@ -24,19 +24,37 @@ export class TodoListItemsComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    this._todoListService.getTodoListItems(listId).subscribe(response => {
-      this.items = response;
-    }, error => {
-      console.error(error);
-      alert(error.message);
-    });
+    this.getItems();
 
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const {todoList} = changes;
+    if (!todoList){
+      return;
+    }
+
+    const {currentValue, previousValue, firstChange} = todoList;
+    if (firstChange || currentValue === previousValue){
+      return;
+    }
+
+    this.getItems();
   }
 
 
 
   ngAfterViewInit() {
 
+  }
+
+  getItems() {
+    this._todoListService.getTodoListItems(this.todoList._id).subscribe(response => {
+      this.items = response;
+    }, error => {
+      console.error(error);
+      alert(error.message);
+    });
   }
 
   createItem(newItemName: string) {
@@ -75,5 +93,15 @@ export class TodoListItemsComponent implements OnInit, AfterViewInit {
   enableEditMethod(index: number) {
     this.editing = true;
     this.enableEditIndex = index;
+  }
+
+  deleteItem(itemId: string, index: number) {
+    this._todoListService.deleteTodoListItem(this.todoList._id, itemId).subscribe(response => {
+      console.log(`item: ${itemId} deleted successfully`);
+      this.items.splice(index, 1);
+    }, error => {
+      console.error(error);
+      alert(error.message);
+    });
   }
 }

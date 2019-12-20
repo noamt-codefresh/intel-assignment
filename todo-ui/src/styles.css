@@ -1,1 +1,36 @@
-/* You can add global styles to this file, and also import other style files */
+.container {
+  display: flex; /* or inline-flex */
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  /*align-content: flex-start*/
+}
+
+.sub-container {
+  width: 70%;
+  margin: 10px;
+}
+
+
+.buttonContainer {
+  display: flex; /* or inline-flex */
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.item-container {
+  width: 80%;
+}
+
+.header-container {
+  display: flex; /* or inline-flex */
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin: 3% 3% 0 3%;
+
+}

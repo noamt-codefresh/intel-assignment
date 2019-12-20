@@ -1,23 +1,27 @@
 
-<div class="list-group">
-  <li *ngFor="let item of items; let i = index" class="list-group-item list-group-item-action">
-      <input type="checkbox" [(ngModel)]="item.done" (change)="toggleDone($event, item)">
-      <span *ngIf="!editing || i !== enableEditIndex">{{item.name}}</span>
-    <form *ngIf="editing && i === enableEditIndex" (ngSubmit)="updateItemName(item)" #form="ngForm">
-      <input type="text" [(ngModel)]="item.name"  name="itemName" [value]="item.name" ng-required/>
-      <button class="btn btn-secondary" (click)="editing = false">Cancel</button>
-      <button class="btn btn-primary" type="submit">Save</button>
-    </form>
-    <div *ngIf="!editing || i !== enableEditIndex" class="btn-group" role="group" aria-label="Basic example">
-      <button class="btn btn-secondary" (click)="enableEditMethod(i)">edit</button>
-      <button class="btn btn-secondary" (click)="deleteItem(item)">delete</button>
-    </div>
-  </li>
-</div>
-
 <div>
   <label>New Item:
     <input [(ngModel)]="newItemName" placeholder="Item name"/>
   </label>
   <button class="btn btn-primary" (click)="createItem(newItemName)">Create</button>
 </div>
+
+<div class="list-group">
+  <li *ngFor="let item of items; let i = index" class="list-group-item list-group-item-action container">
+     <div class="item-container">
+      <input type="checkbox" [(ngModel)]="item.done" (change)="toggleDone($event, item)">
+      <span *ngIf="!editing || i !== enableEditIndex">{{item.name}}</span>
+      <form *ngIf="editing && i === enableEditIndex" (ngSubmit)="updateItemName(item)" #form="ngForm">
+        <input type="text" [(ngModel)]="item.name"  name="itemName" [value]="item.name" ng-required/>
+        <button class="btn btn-secondary" (click)="editing = false">Cancel</button>
+        <button class="btn btn-primary" type="submit">Save</button>
+      </form>
+     </div>
+    <div *ngIf="!editing || i !== enableEditIndex" class="btn-group" role="group" >
+      <button class="btn btn-secondary" (click)="enableEditMethod(i)">edit</button>
+      <button class="btn btn-secondary" (click)="deleteItem(item._id, i)">delete</button>
+    </div>
+  </li>
+</div>
+
+

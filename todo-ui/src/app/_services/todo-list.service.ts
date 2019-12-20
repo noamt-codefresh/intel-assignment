@@ -62,9 +62,18 @@ export class TodoListService {
       );
   }
 
+  deleteTodoListItem(listId: string, itemId: string): Observable<TodoListItem>  {
+    return this.http
+      .delete<TodoListItem>(`${this.basePath}/todo/lists/${listId}/item/${itemId}`, this.httpOptions)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
   handleError(error: HttpErrorResponse) {
     return throwError(
       error.error);
   }
+
 
 }

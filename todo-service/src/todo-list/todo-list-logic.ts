@@ -68,6 +68,7 @@ export class TodoListLogic {
         try {
             todoListItems = await this._todoListCacheManager.get(key);
             if (todoListItems){
+                console.debug("TodoListLogic.getTodoListItems: using cache key", key);
                 return todoListItems;
             }
         } catch (err) {
