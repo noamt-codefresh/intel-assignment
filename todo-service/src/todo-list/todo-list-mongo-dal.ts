@@ -53,12 +53,12 @@ export class TodoListMongoDal implements TodoListDal {
             return Q.reject(new Error('data store received undefined todoList id'));
         }
 
-        console.debug(`${this.constructor.name}.getTodoListItems: Retrieving todo lists for user '${todoListId}'`);
+        console.debug(`${this.constructor.name}.getTodoListItems: Retrieving items for list '${todoListId}'`);
         let todoList;
         try {
             todoList = await this._todoListCollection.findOne<TodoList>({_id: new ObjectId(todoListId)});
         } catch (err) {
-            return Q.reject(new ErrorWithCode(`failed while trying to query todo lists with query ${{todoListId}} on: ${err}`, ERROR_CODES.DB_ERROR));
+            return Q.reject(new ErrorWithCode(`failed while trying to query items with query ${{todoListId}} on: ${err}`, ERROR_CODES.DB_ERROR));
         }
 
         if (!todoList) {
@@ -125,12 +125,12 @@ export class TodoListMongoDal implements TodoListDal {
         try {
             result = await this._todoListCollection.updateOne({_id: new ObjectId(todoListId), "items._id": todoListItem._id},{$set: {"items.$": todoListItem}});
         } catch (err) {
-            return Q.reject(new ErrorWithCode(`failed while trying to insert todo list item: '${todoListItem._id}' on: ${err}`, ERROR_CODES.DB_ERROR));
+            return Q.reject(new ErrorWithCode(`failed while trying to update todo list item: '${todoListItem._id}' on: ${err}`, ERROR_CODES.DB_ERROR));
         }
 
         const {matchedCount} = result;
         if (!matchedCount) {
-            return Q.reject(new ErrorWithCode(`failed to update item: ${todoListItem._id}, cannot find list: ${todoListId} or item`, ERROR_CODES.TODO_LIST_DOESNT_EXIST))
+            return Q.reject(new ErrorWithCode(`failed to update item, cannot find list: ${todoListId} or item: ${todoListItem._id}`, ERROR_CODES.TODO_LIST_DOESNT_EXIST))
         }
 
         console.debug(`${this.constructor.name}.updateTodoListItem: Successfully updated todo list item '${todoListItem._id} of list '${todoListId}'`);
@@ -153,10 +153,10 @@ export class TodoListMongoDal implements TodoListDal {
 
         const {modifiedCount} = result;
         if (!modifiedCount) {
-            return Q.reject(new ErrorWithCode(`failed to delete item: ${todoListItemId}, cannot find list: ${todoListId} or item`, ERROR_CODES.TODO_LIST_DOESNT_EXIST))
+            return Q.reject(new ErrorWithCode(`failed to delete item, cannot find list: ${todoListId} or item: ${todoListItemId}`, ERROR_CODES.TODO_LIST_DOESNT_EXIST))
         }
 
-        console.debug(`${this.constructor.name}.deleteTodoListItem: Successfully updated todo list item '${todoListItemId} of list '${todoListId}'`);
+        console.debug(`${this.constructor.name}.deleteTodoListItem: Successfully deleted todo list item '${todoListItemId} of list '${todoListId}'`);
         return Q.resolve(undefined);
     }
 

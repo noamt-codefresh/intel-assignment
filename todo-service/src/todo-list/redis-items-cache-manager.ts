@@ -119,7 +119,7 @@ export class RedisItemsCacheManager implements TodoListCacheManager {
         }
 
         try {
-            result = await Q.nfcall(this._redisClient.hdel.bind(this._redisClient), key, field);
+            await Q.nfcall(this._redisClient.hdel.bind(this._redisClient), key, field);
         } catch (err) {
             return Q.reject(new ErrorWithCode(`failed deleting cache for key: ${key} on: ${err}`, ERROR_CODES.REDIS_ERROR));
         }

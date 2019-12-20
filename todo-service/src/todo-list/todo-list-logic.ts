@@ -113,7 +113,7 @@ export class TodoListLogic {
         try {
             await this._updateTodoCache(key, todoListItem);
         } catch (err) {
-            console.error("TodoListLogic.addTodoListItem: Failed setting cache for key", key);
+            console.error("TodoListLogic.addTodoListItem: Failed updating cache for key", key);
         }
 
         return todoListItem;
@@ -140,7 +140,7 @@ export class TodoListLogic {
             console.error("TodoListLogic.addTodoListItem: Failed setting cache for key", key);
         }
 
-        console.log("TodoListLogic.updateTodoListItem: Successfully added todo list item", todoListId);
+        console.log("TodoListLogic.updateTodoListItem: Successfully updated todo list item", listItem);
         return Q.resolve(undefined);
     }
 
@@ -161,7 +161,7 @@ export class TodoListLogic {
         try {
             await this._todoListCacheManager.deleteHashField(key, todoListItemId);
         } catch (err) {
-            console.error("TodoListLogic.addTodoListItem: Failed setting cache for key", key);
+            console.error("TodoListLogic.addTodoListItem: Failed updating cache for key", key);
         }
 
         console.log("TodoListLogic.deleteTodoListItem: Successfully deleted todo list item", todoListItemId);
@@ -175,10 +175,10 @@ export class TodoListLogic {
         }
 
         return this._todoListCacheManager.update(key, todoListItem).catch((err: Error) => {
-            console.error("TodoListLogic.addTodoListItem: Failed setting cache for key", key, "on", err, ", invalidating cache...");
+            console.error("TodoListLogic._updateTodoCache: Failed setting cache for key", key, "on", err, ", invalidating cache...");
             return this._todoListCacheManager.delete(key);
         }).catch((err: Error) => {
-            console.error("TodoListLogic.addTodoListItem: [FATAL] Failed to clear cache key", key, "on", err);
+            console.error("TodoListLogic._updateTodoCache: [FATAL] Failed to clear cache key", key, "on", err);
         })
     }
 

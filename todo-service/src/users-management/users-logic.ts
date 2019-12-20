@@ -50,6 +50,7 @@ export class UsersLogic {
             const error = new ErrorWithCode(`received invalid user input: ${ JSON.stringify(userInput) }'`,  ERROR_CODES.USER_INVALID_INPUT);
             return Q.reject(error);
         }
+        console.log("UsersLogic.authenticate: Authenticating user", userInput.name);
 
         let user: User;
         try {
@@ -74,6 +75,7 @@ export class UsersLogic {
             expiresIn: '24h' // token expires in 3 hrs
         });
 
+        console.log("UsersLogic.authenticate: User", userInput.name, "Authenticated successfully");
         // retrieve issue and expiration times
         let { iat, exp } = jwt.decode(token) as any;
         return { iat, exp, token, userProfile: {name: user.name} };

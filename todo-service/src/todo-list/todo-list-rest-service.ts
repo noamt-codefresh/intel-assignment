@@ -61,7 +61,7 @@ export class TodoListRestService implements Routable {
             res.send(200, todoListItems);
         } catch (e) {
             error = e;
-            console.error("UsersRestService._getTodoListItmes: Failed retrieving todo list items on", error.stack);
+            console.error("UsersRestService._getTodoListItems: Failed retrieving todo list items on", error.stack);
             const {message, code, httpStatus} = ErrorUtils.httpErrorHandler(error);
             res.send(httpStatus, {message, code});
         } finally {
