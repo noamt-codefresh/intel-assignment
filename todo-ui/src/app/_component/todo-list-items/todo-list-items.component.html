@@ -1,1 +1,19 @@
-<p>todo-list-items works!</p>
+
+<div class="list-group">
+  <li *ngFor="let item of items; let i = index" class="list-group-item list-group-item-action">
+      <input type="checkbox" [(ngModel)]="item.done" (change)="toggleDone($event, item)">
+      <span [hidden]="editingName">{{item.name}}</span>
+    <form [hidden]="!editingName" (ngSubmit)="updateItemName(item)" #form="ngForm">
+      <input type="text" [(ngModel)]="item.name"  name="itemName" [value]="item.name" ng-required/>
+      <button class="btn btn-primary" type="submit">Save</button>
+    </form>
+    <button (click)="editingName = true">edit</button>
+  </li>
+</div>
+
+<div>
+  <label>New Item:
+    <input [(ngModel)]="newItemName" placeholder="Item name"/>
+  </label>
+  <button class="btn btn-primary" (click)="createItem(newItemName)">Create</button>
+</div>

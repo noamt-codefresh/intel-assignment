@@ -80,7 +80,6 @@ export class RedisItemsCacheManager implements TodoListCacheManager {
             return Q.reject(new Error(`received invalid args: key '${key}' / todoListItem '${todoListItem}'`));
         }
 
-        let result: any[];
         try {
             const isKeyExists = await Q.nfcall(this._redisClient.exists.bind(this._redisClient), key);
             if (!isKeyExists){
@@ -93,17 +92,10 @@ export class RedisItemsCacheManager implements TodoListCacheManager {
             ];
 
             const multi = this._redisClient.multi(commands);
-            result = await Q.nfcall(multi.exec.bind(multi));
+            await Q.nfcall(multi.exec.bind(multi));
         } catch (err) {
             return Q.reject(new ErrorWithCode(`failed setting cache for key: ${key} on: ${err}`, ERROR_CODES.REDIS_ERROR));
         }
-
-        if (result[0] !== 1){
-            return Q.reject(new ErrorWithCode(`failed setting cache for key: ${key}, received result: ${JSON.stringify(result)}`, ERROR_CODES.REDIS_ERROR));
-        }
-
-        return Q.resolve(undefined);
-
     }
 
     public async delete<TodoList>(key: string): Promise<void> {

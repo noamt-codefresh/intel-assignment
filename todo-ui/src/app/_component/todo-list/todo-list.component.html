@@ -1,7 +1,24 @@
 
 
-
 <div>
-  <li *ngFor="let hero of heroes">
+  <label>New Todo List:
+    <input [(ngModel)]="newTodoListName" placeholder="Todo list name"/>
+  </label>
+  <button class="btn btn-primary" (click)="createTodoList(newTodoListName)">Create</button>
 </div>
+<div>
+  <div class="list-group">
+    <button *ngFor="let todoList of todoLists; let i = index"
+            type="button" class="list-group-item list-group-item-action"
+            [ngClass]="{'active': isActive(todoList, i)}"
+            (click)="onListSelect(todoList)">
+      {{todoList.title}}
+    </button>
+  </div>
+</div>
+
+<div *ngIf="this.currentTodoList">
+  <app-todo-list-items [todoList]="currentTodoList"></app-todo-list-items>
+</div>
+
 

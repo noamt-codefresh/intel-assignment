@@ -12,6 +12,7 @@ import {TodoListComponent} from "./_component/todo-list/todo-list.component";
 import { RegisterComponent } from './_component/register/register.component';
 import {JwtInterceptor} from "./_helpers/jwt.interceptor";
 import { TodoListItemsComponent } from './_component/todo-list-items/todo-list-items.component';
+import {CommonModule} from "@angular/common";
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { TodoListItemsComponent } from './_component/todo-list-items/todo-list-i
     BrowserModule,
     AppRoutingModule,
     FormsModule,
+    CommonModule,
     HttpClientModule,
     JwtModule.forRoot({
       config: {
