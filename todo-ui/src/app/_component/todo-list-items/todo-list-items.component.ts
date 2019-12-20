@@ -13,7 +13,8 @@ export class TodoListItemsComponent implements OnInit, AfterViewInit {
   @Input() todoList: TodoList;
 
   newItemName: string;
-  editingName: boolean = false;
+  editing: boolean = false;
+  enableEditIndex = null;
 
   constructor(private _todoListService: TodoListService) { }
 
@@ -63,10 +64,16 @@ export class TodoListItemsComponent implements OnInit, AfterViewInit {
   updateItemName(item: TodoListItem) {
     this._todoListService.updateTodoListItem(this.todoList._id, item).subscribe(response => {
       console.log(`item: ${item._id} updated successfully`);
-      this.editingName = false;
+      this.editing = false;
+      this.enableEditIndex = null;
     }, error => {
       console.error(error);
       alert(error.message);
     });
+  }
+
+  enableEditMethod(index: number) {
+    this.editing = true;
+    this.enableEditIndex = index;
   }
 }

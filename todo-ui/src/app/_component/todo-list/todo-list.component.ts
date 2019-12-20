@@ -58,4 +58,15 @@ export class TodoListComponent implements OnInit, AfterViewInit {
   onListSelect(todoList: TodoList) {
     this.currentTodoList=todoList;
   }
+
+  getUserName() {
+    try {
+      const userProfile = JSON.parse(localStorage.getItem("userProfile"));
+      return userProfile.name;
+    } catch (e) {
+      console.error(e);
+    }
+
+
+  }
 }
