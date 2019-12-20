@@ -5,13 +5,14 @@ import {Observable, throwError} from "rxjs";
 import {LoginResponse} from "../_models/user";
 import {catchError} from "rxjs/operators";
 import {TodoList, TodoListItem} from "../_models/todo-list";
+import {environment} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class TodoListService {
 
-  basePath = 'http://127.0.0.1:8686';
+  basePath = environment.todoServiceBaseUrl;
 
   constructor( private router: Router, private http: HttpClient) { }
 

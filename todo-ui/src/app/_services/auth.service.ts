@@ -4,6 +4,7 @@ import {Router} from "@angular/router";
 import {Observable, throwError} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {LoginResponse, RegisterResponse} from "../_models/user";
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ import {LoginResponse, RegisterResponse} from "../_models/user";
 export class AuthService {
 
   // API path
-  basePath = 'http://127.0.0.1:8686';
+  basePath = environment.todoServiceBaseUrl;
 
   constructor( private router: Router, private http: HttpClient) { }
 
