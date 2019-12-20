@@ -13,8 +13,10 @@
             <label for="exampleInputPassword1">Password</label>
             <input type="password" class="form-control" id="exampleInputPassword1" name="userPassword" placeholder="Password" [(ngModel)]="model.userPassword" required />
           </div>
+          <div class="buttonContainer">
           <button type="submit" class="btn btn-primary" [disabled]="submitted || !form.valid">Submit</button>
           <a routerLink="/register" class="btn btn-secondary">Register</a>
+          </div>
         </form>
       </div>
     </div>
