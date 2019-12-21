@@ -11,7 +11,12 @@ Build todo list app service.
 
 - Once cloned, cd to cloned repo and run `docker-compose up -d`
 in order to build and run environment (first time can take a while since docker is building and pulling missing images).
-- Once services are built it can take ~15 seconds till they are up and running (can be verified in todo-service/ui logs with `docker logs -f <container_id>`). 
+- Once services are built it can take ~20 seconds till they are up and running.
+ Can be verified in todo-service/ui logs with `docker logs -f <container_id>`)<br/>
+ "todo-ui" container logs should end with: 
+ `** Angular Live Development Server is listening on 0.0.0.0:4200, open your browser on http://localhost:4200/ **
+                                  ℹ ｢wdm｣: Compiled successfully.`<br/>
+ "todo-service" container logs should end with: `main: service is up and running on port 80` 
 
 ###Demo Instructions
 
