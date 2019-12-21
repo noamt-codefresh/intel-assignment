@@ -1,0 +1,1 @@
+{"version":3,"file":"error-with-code.js","sourceRoot":"","sources":["../../src/errors/error-with-code.ts"],"names":[],"mappings":";;AAEA,MAAa,aAAc,SAAQ,KAAK;IAEpC,YAAmB,OAAe,EAAS,IAAY;QACnD,KAAK,CAAC,OAAO,CAAC,CAAC;QADA,YAAO,GAAP,OAAO,CAAQ;QAAS,SAAI,GAAJ,IAAI,CAAQ;IAEvD,CAAC;IAEM,QAAQ;QACX,OAAO,IAAI,IAAI,CAAC,IAAI,KAAK,IAAI,CAAC,OAAO,EAAE,CAAC;IAC5C,CAAC;CAEJ;AAVD,sCAUC"}

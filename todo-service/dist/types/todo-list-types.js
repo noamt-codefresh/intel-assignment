@@ -1,0 +1,17 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TODO_LIST_DB_NAME = "todo";
+exports.JWT_SECRET = "!@!@!super-secret-shhh!@!@!@";
+var ERROR_CODES;
+(function (ERROR_CODES) {
+    ERROR_CODES["GENERAL_ERROR"] = "GENERAL_ERROR";
+    ERROR_CODES["USER_INVALID_INPUT"] = "USER_INVALID_INPUT";
+    ERROR_CODES["USER_UNAUTHORIZED_ERROR"] = "USER_UNAUTHORIZED_ERROR";
+    ERROR_CODES["USER_EXISTS_ERROR"] = "USER_EXISTS_ERROR";
+    ERROR_CODES["USER_DOESNT_EXIST"] = "USER_DOESNT_EXIST";
+    ERROR_CODES["TODO_LIST_DOESNT_EXIST"] = "TODO_LIST_DOESNT_EXIST";
+    ERROR_CODES["THIRD_PARTY_ERROR"] = "THIRD_PARTY_ERROR";
+    ERROR_CODES["DB_ERROR"] = "DB_ERROR";
+    ERROR_CODES["REDIS_ERROR"] = "REDIS_ERROR";
+})(ERROR_CODES = exports.ERROR_CODES || (exports.ERROR_CODES = {}));
+//# sourceMappingURL=todo-list-types.js.map
